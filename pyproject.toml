@@ -1,0 +1,36 @@
+
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "safefeat"
+version = "0.1.0"
+description = "Leakage-safe, point-in-time feature engineering for event logs."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [{ name = "Alisha Angdembe" }]
+keywords = ["machine-learning", "feature-engineering", "time-series", "event-log", "leakage"]
+dependencies = [
+  "pandas",
+  "numpy",
+]
+
+[project.urls]
+Homepage = "https://github.com/AlishaAng/safefeat"
+Issues = "https://github.com/AlishaAng/safefeat/issues"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7",
+  "ruff>=0.5",
+] 
