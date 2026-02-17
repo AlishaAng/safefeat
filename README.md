@@ -11,16 +11,38 @@ pip install safefeat
 
 ```
 
-## Core idea
+## Example
+```python
+from safefeat import build_features, WindowAgg
 
-You provide:
+spec = [
+    WindowAgg(
+        table="events",
+        windows=["7D", "30D"],
+        metrics={
+            "*": ["count"],              # total events
+            "amount": ["sum", "mean"],   # numeric aggregations
+            "event_type": ["nunique"],   # categorical unique counts
+        },
+    )
+]
 
-- Spine: the prediction moments (one row per entity and cutoff time)
+X = build_features(
+    spine=spine,
+    tables={"events": events},
+    spec=spec,
+    event_time_cols={"events": "event_time"},
+    allowed_lag="0s",  # prevent future leakage
+)
 
-- Events: event history (one row per event and timestamp)
+print(X)
+```
+Expected output :
 
-- Spec: what features to compute (windows + aggregations)
+```text
+| entity_id | cutoff_time | events__n_events__7d | events__amount__sum__30d |
+| --------- | ----------- | -------------------- | ------------------------ |
+| u1        | 2024-01-10  | 2                    | 30                       |
+| u2        | 2024-01-10  | 1                    | 5                        |
 
-safefeat guarantees features are point-in-time correct.
-
-
+```

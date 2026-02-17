@@ -33,4 +33,7 @@ target-version = "py39"
 dev = [
   "pytest>=7",
   "ruff>=0.5",
+  "mkdocs>=1.5",
+  "mkdocs-material>=9.0",
+  "mkdocstrings[python]>=0.24",
 ] 

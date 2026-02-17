@@ -1,9 +1,37 @@
 import pandas as pd
-from safefeat.spec import WindowAgg, RecencyBlock
+from safefeat.spec import WindowAgg, RecencyBlock, FeatureSpec
 from safefeat.audit import AuditReport, TableAudit
 
 def build_features(spine, tables, spec, *, entity_col="entity_id", cutoff_col="cutoff_time",
                    event_time_cols=None, allowed_lag="0s", return_report=False):
+    """Build leakage-safe features from event tables.
+
+    Parameters
+    ----------
+    spine : pandas.DataFrame
+        DataFrame containing entity identifiers and cutoff times.
+    tables : dict[str, pandas.DataFrame]
+        Mapping of table name to event DataFrame.
+    spec : FeatureSpec or list[WindowAgg]
+        Feature specification describing windows and aggregations.
+    entity_col : str, default="entity_id"
+        Name of entity identifier column.
+    cutoff_col : str, default="cutoff_time"
+        Name of cutoff timestamp column.
+    event_time_cols : dict[str, str]
+        Mapping of table name to event timestamp column.
+    allowed_lag : str, default="0s"
+        Allowed tolerance for future timestamps (pandas timedelta string).
+    return_report : bool, default=False
+        If True, return a tuple ``(features_df, AuditReport)`` with audit
+        information about dropped/kept event pairs.
+
+    Returns
+    -------
+    pandas.DataFrame or (pandas.DataFrame, AuditReport)
+        Feature matrix aligned to the spine. If ``return_report`` is True a
+        second return value contains the audit report.
+    """
     
     if event_time_cols is None:
         raise ValueError("event_time_cols must be provided, e.g. {'events': 'event_time'}")
@@ -18,6 +46,9 @@ def build_features(spine, tables, spec, *, entity_col="entity_id", cutoff_col="c
     
     report = AuditReport() if return_report else None
 
+    if isinstance(spec, list):
+        spec = FeatureSpec(blocks=spec)
+        
     for block in spec.blocks:
         if isinstance(block, WindowAgg): 
             events_df = tables[block.table] # get the events table specified in the block
@@ -143,9 +174,31 @@ def build_features(spine, tables, spec, *, entity_col="entity_id", cutoff_col="c
 
 
 def filter_events_point_in_time(spine, events, *,  allowed_lag="0s", entity_col="entity_id", cutoff_col="cutoff_time", event_time_col="event_time", time_window= "30D", collect_audit=False):
-    # helper function to filter events based on point-in-time rules, used by _events_in_window and count_events_in_window
-    # if collect_audit=True, returns tuple (filtered_df, audit_dict) with join stats
-    # otherwise returns just the filtered df
+    """Join events to the spine and enforce point-in-time filtering.
+
+    This function merges ``spine`` and ``events`` on ``entity_col`` to create
+    entity-cutoff × event pairs, then removes any pairs where the event
+    occurs after the cutoff (subject to ``allowed_lag``).
+
+    Parameters
+    ----------
+    spine, events : pandas.DataFrame
+        Input DataFrames. ``spine`` must contain ``entity_col`` and
+        ``cutoff_col``; ``events`` must contain ``entity_col`` and
+        ``event_time_col``.
+    allowed_lag : str
+        Pandas-compatible timedelta string giving a grace period for late
+        events (e.g. ``"24h"``).
+    collect_audit : bool
+        If True the function returns ``(filtered_df, audit_dict)`` where
+        ``audit_dict`` contains counts of joined/kept/dropped pairs and the
+        maximum future delta.
+
+    Returns
+    -------
+    pandas.DataFrame or (pandas.DataFrame, dict)
+        Filtered DataFrame (and optional audit dictionary).
+    """
 
     if entity_col not in spine.columns or cutoff_col not in spine.columns:
         raise ValueError(f"Required columns {entity_col} and/or {cutoff_col} not found in spine DataFrame")
@@ -200,8 +253,26 @@ def _events_in_window(
     event_time_col="event_time",
     collect_audit=False,
 ):
-    # if collect_audit=True, returns (in_window_df, audit_dict)
-    # otherwise returns just in_window_df
+    """Return events joined to entity-cutoff pairs restricted to a window.
+
+    This helper first calls :func:`filter_events_point_in_time` to apply the
+    "no future" rule and (optionally) collect audit info, then further
+    restricts the joined pairs to those whose ``event_time`` falls within the
+    lookback defined by ``time_window`` before the cutoff.
+
+    Parameters
+    ----------
+    time_window : str
+        Pandas-compatible timedelta string (e.g. ``"30D"``) defining how far
+        back from the cutoff to include events.
+    collect_audit : bool
+        If True return a tuple ``(in_window_df, audit_dict)``.
+
+    Returns
+    -------
+    pandas.DataFrame or (pandas.DataFrame, dict)
+        Filtered events in the window and optional audit dictionary.
+    """
 
     result = filter_events_point_in_time(
         spine=spine,
@@ -212,26 +283,30 @@ def _events_in_window(
         allowed_lag=allowed_lag,
         collect_audit=collect_audit,
     )
-    
+
     if collect_audit:
         filtered, audit_dict = result
     else:
         filtered = result
         audit_dict = None
-    
+
     window_start = filtered[cutoff_col] - pd.to_timedelta(time_window)
     mask = (filtered[event_time_col] > window_start) & (filtered[event_time_col] <= filtered[cutoff_col])
     in_window = filtered.loc[mask]
-    
+
     if collect_audit:
         return in_window, audit_dict
     return in_window
 
 
 
-def count_events_in_window(spine, events, *, allowed_lag="0s", entity_col="entity_id", cutoff_col="cutoff_time", event_time_col="event_time", time_window= "30D"):  
-    # main function to count events in the window, used by build_features
-    # make sure cutoff col is datetime in the copy we merge back so dtypes align with counts
+def count_events_in_window(spine, events, *, allowed_lag="0s", entity_col="entity_id", cutoff_col="cutoff_time", event_time_col="event_time", time_window= "30D"):
+    """Count events per entity-cutoff within the lookback window.
+
+    This is a convenience wrapper used by older tests and examples. It
+    returns a DataFrame with an ``event_count_{time_window}`` column aligned
+    to the provided ``spine``.
+    """
     spine2 = spine.copy()
     spine2[cutoff_col] = pd.to_datetime(spine2[cutoff_col], errors="raise")
 
@@ -244,13 +319,12 @@ def count_events_in_window(spine, events, *, allowed_lag="0s", entity_col="entit
         cutoff_col=cutoff_col,
         event_time_col=event_time_col,
     )
-    
+
     counts = (
         in_window.groupby([entity_col, cutoff_col], sort=False)
         .size()
-        .reset_index(name= f"event_count_{time_window}")
+        .reset_index(name=f"event_count_{time_window}")
     )
-    
 
     out = spine2.merge(counts, on=[entity_col, cutoff_col], how="left")
     out[f"event_count_{time_window}"] = out[f"event_count_{time_window}"].fillna(0).astype(int)
