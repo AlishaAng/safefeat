@@ -19,7 +19,7 @@ plugins:
             show_root_heading: true
 
 nav:
-  - Home: index.md
+  - Home: index.html 
   - Getting Started: getting-started.md
   - Concepts: concepts.md
   - API Reference: api.md
