@@ -8,11 +8,11 @@ Leakage-safe, point-in-time feature engineering for event logs.
 
 ```bash
 pip install safefeat
-
 ```
 
 ## Main Concept:
 safefeat works with three components:
+
 1️⃣ Spine : Defines when predictions are made.
 
 | entity_id | cutoff_time |
@@ -75,7 +75,6 @@ Expected output :
 | --------- | ----------- | -------------------- | ----------------------- | ------------------------ | ------------------------------- | --------------------- | ------------------------ | ------------------------- | -------------------------------- |
 | u1        | 2024-01-10  | 2                    | 30.0                    | 15.0                     | 2                               | 2                     | 30.0                     | 15.0                      | 2                                |
 | u2        | 2024-01-31  | 1                    | 25.0                    | 25.0                     | 1                               | 2                     | 30.0                     | 15.0                      | 2                                |
-
 ```
 ## ⏱ Recency Features (Time Since Last Event)
 Recency features are extremely useful in churn, fraud, and behavioural modelling.
