@@ -15,7 +15,7 @@ pip install -e ".[dev]"
 ```
 
 
-1. Prepare the spine and events
+## 1. Prepare the spine and events
 --------------------------------
 
 The spine defines the prediction scenarios as rows of (entity_id, cutoff_time).
@@ -37,7 +37,7 @@ events = pd.DataFrame({
 })
 ```
 
-2. Define the Feature Specification
+## 2. Define the Feature Specification
 -----------------------
 You declare features using WindowAgg.
 
@@ -57,7 +57,7 @@ spec = [
 ]
 ```
 
-3. Build features
+## 3. Build features
 ------------------
 
 ```python
@@ -94,7 +94,7 @@ This guarantees that no future events are used when building features.
 If allowed_lag is set (e.g. "5s"), a small tolerance is allowed to handle timestamp precision issues.
 
 
-4. Inspect the AuditReport
+## 4. Inspect the AuditReport
 --------------------------
 
 If `return_report=True`, `build_features` returns an `AuditReport` mapping

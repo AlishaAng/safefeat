@@ -4,7 +4,7 @@ This page documents the public API of `safefeat`.
 
 ## Example
 
-### 1) Basic window features (count, sum, mean)
+### 1. Basic window features (count, sum, mean)
 
 ```python
 import pandas as pd

@@ -133,9 +133,8 @@
 .sf-body { font-size: 0.95rem; color: var(--sf-muted); max-width: 620px; }
 
 /* ── Compare grid ── */
-.sf-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; max-width: 860px; margin-left: auto; margin-right: auto; }
-
-@media (max-width: 640px) { .sf-compare { grid-template-columns: 1fr; } }
+.sf-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; max-width: 640px; margin-left: -2rem; margin-right: auto; }
+/* @media (max-width: 640px) { .sf-compare { grid-template-columns: 1fr; } } */
 
 
 .sf-card { border-radius: 10px; padding: 1.4rem; border: 1px solid var(--sf-border); }
