@@ -212,15 +212,14 @@ X = build_features(
   <div class="sf-faq">
     <div class="sf-faq-item">
       <div class="sf-faq-q" onclick="this.parentElement.classList.toggle('open')">
-        What does <code>allowed_lag</code> actually do?
-        <em class="faq-arrow">▾</em>
+        What does <code>allowed_lag</code> actually do? <em class="sf-arrow">▾</em>
       </div>
       <div class="faq-a">
-        allowed_lag defines a tolerance window for future timestamps when enforcing leakage safety.
+        <code>allowed_lag</code> defines a tolerance window for future timestamps when enforcing leakage safety.
         In real-world systems, timestamps are messy — for example, database writes are slightly delayed.
         Core rule: <code>event_time &lt;= cutoff_time + allowed_lag</code>, so when <code>allowed_lag="5s"</code>
         events within 5 seconds of the cutoff are still included.
-    </div>
+       </div>
     </div>
     <div class="sf-faq-item">
       <div class="sf-faq-q" onclick="this.parentElement.classList.toggle('open')">
