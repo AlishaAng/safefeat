@@ -3,7 +3,7 @@ site_description: Leakage-safe, point-in-time feature engineering for event data
 site_author: Alisha Angdembe
 site_url: https://alishaang.github.io/safefeat/
 extra:
-  version: "0.1.9"
+  version: "0.2.0"
 
 theme:
   name: material
