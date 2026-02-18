@@ -77,11 +77,10 @@ print(X)
 Expected output (approximate):
 
 ```text
-| entity_id | cutoff_time | events__n_events__7d | events__amount__sum__30d |
-| --------- | ----------- | -------------------- | ------------------------ |
-| u1        | 2024-01-10  | 2                    | 30                       |
-| u2        | 2024-01-10  | 1                    | 5                        |
-
+| entity_id | cutoff_time | events__n_events__7d | events__amount__sum__7d | events__amount__mean__7d | events__event_type__nunique__7d | events__n_events__30d | events__amount__sum__30d | events__amount__mean__30d | events__event_type__nunique__30d |
+|-----------|------------|----------------------|--------------------------|---------------------------|----------------------------------|-----------------------|---------------------------|----------------------------|-----------------------------------|
+| u1        | 2024-01-10 | 2                    | 30.0                     | 15.0                      | 2                                | 2                     | 30.0                      | 15.0                       | 2                                 |
+| u2        | 2024-01-31 | 1                    | 25.0                     | 25.0                      | 1                                | 2                     | 30.0                      | 15.0                       | 2                                 |
 ```
 
 ### How Leakage Prevention Works

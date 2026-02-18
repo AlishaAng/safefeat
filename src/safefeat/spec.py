@@ -22,6 +22,39 @@ class WindowAgg:
         ``"*"`` as a wildcard key to request event counts (only ``["count"]``
         is supported for the wildcard). Example: ``{"*": ["count"],
         "amount": ["sum", "mean"]}``.
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from safefeat import build_features, WindowAgg
+    >>>
+    >>> spine = pd.DataFrame({
+    ...     "entity_id": ["u1"],
+    ...     "cutoff_time": ["2024-01-10"],
+    ... })
+    >>>
+    >>> events = pd.DataFrame({
+    ...     "entity_id": ["u1", "u1"],
+    ...     "event_time": ["2024-01-05", "2024-01-08"],
+    ...     "amount": [10, 20],
+    ... })
+    >>>
+    >>> spec = [
+    ...     WindowAgg(
+    ...         table="events",
+    ...         windows=["7D"],
+    ...         metrics={"amount": ["sum"], "*": ["count"]},
+    ...     )
+    ... ]
+    >>>
+    >>> X = build_features(
+    ...     spine,
+    ...     {"events": events},
+    ...     spec,
+    ...     event_time_cols={"events": "event_time"},
+    ... )
+    >>> X.filter(like="events__").columns.tolist()
+    ['events__amount__sum__7d', 'events__n_events__7d']
     """
     table: str
     windows: List[str]
@@ -67,6 +100,33 @@ class RecencyBlock:
         Optional name of a column to filter on (for example ``"event_type"``).
     filter_value:
         Optional value that ``filter_col`` must equal to be considered.
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from safefeat import build_features, RecencyBlock
+    >>>
+    >>> spine = pd.DataFrame({
+    ...     "entity_id": ["u1"],
+    ...     "cutoff_time": ["2024-01-10"],
+    ... })
+    >>>
+    >>> events = pd.DataFrame({
+    ...     "entity_id": ["u1"],
+    ...     "event_time": ["2024-01-08"],
+    ... })
+    >>>
+    >>> spec = [RecencyBlock(table="events")]
+    >>>
+    >>> X = build_features(
+    ...     spine,
+    ...     {"events": events},
+    ...     spec,
+    ...     event_time_cols={"events": "event_time"},
+    ... )
+    >>> X["events__recency"].iloc[0]
+    2
+
     """
     table: str
     filter_col: Optional[str] = None
