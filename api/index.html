@@ -1402,41 +1402,40 @@ is supported for the wildcard). Example: <code>{"*": ["count"],
     </table>
 
 
-<details class="example" open>
-  <summary>Example</summary>
-  <blockquote>
-<blockquote>
-<blockquote>
-<p>import pandas as pd
-from safefeat import build_features, WindowAgg</p>
-<p>spine = pd.DataFrame({
-...     "entity_id": ["u1"],
-...     "cutoff_time": ["2024-01-10"],
-... })</p>
-<p>events = pd.DataFrame({
-...     "entity_id": ["u1", "u1"],
-...     "event_time": ["2024-01-05", "2024-01-08"],
-...     "amount": [10, 20],
-... })</p>
-<p>spec = [
-...     WindowAgg(
-...         table="events",
-...         windows=["7D"],
-...         metrics={"amount": ["sum"], "*": ["count"]},
-...     )
-... ]</p>
-<p>X = build_features(
-...     spine,
-...     {"events": events},
-...     spec,
-...     event_time_cols={"events": "event_time"},
-... )
-X.filter(like="events__").columns.tolist()
-['events__amount__sum__7d', 'events__n_events__7d']</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</details>
+<p><span class="doc-section-title">Examples:</span></p>
+    <pre><code class="language-python">import pandas as pd
+from safefeat import build_features, WindowAgg
+
+spine = pd.DataFrame({
+    &quot;entity_id&quot;: [&quot;u1&quot;],
+    &quot;cutoff_time&quot;: [&quot;2024-01-10&quot;],
+})
+
+events = pd.DataFrame({
+    &quot;entity_id&quot;: [&quot;u1&quot;, &quot;u1&quot;],
+    &quot;event_time&quot;: [&quot;2024-01-05&quot;, &quot;2024-01-08&quot;],
+    &quot;amount&quot;: [10, 20],
+})
+
+spec = [
+    WindowAgg(
+        table=&quot;events&quot;,
+        windows=[&quot;7D&quot;],
+        metrics={&quot;amount&quot;: [&quot;sum&quot;], &quot;*&quot;: [&quot;count&quot;]},
+    )
+]
+
+X = build_features(
+    spine=spine,
+    tables={&quot;events&quot;: events},
+    spec=spec,
+    event_time_cols={&quot;events&quot;: &quot;event_time&quot;},
+)
+
+X.filter(like=&quot;events__&quot;).columns.tolist()
+# ['events__amount__sum__7d', 'events__n_events__7d']
+</code></pre>
+
 
 
 
@@ -1523,7 +1522,10 @@ X.filter(like="events__").columns.tolist()
 <span class="normal">81</span>
 <span class="normal">82</span>
 <span class="normal">83</span>
-<span class="normal">84</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">WindowAgg</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Specification for aggregating events within a time window.</span>
 
@@ -1542,38 +1544,41 @@ X.filter(like="events__").columns.tolist()
 <span class="sd">        is supported for the wildcard). Example: ``{&quot;*&quot;: [&quot;count&quot;],</span>
 <span class="sd">        &quot;amount&quot;: [&quot;sum&quot;, &quot;mean&quot;]}``.</span>
 
-<span class="sd">    Example</span>
-<span class="sd">    -------</span>
-<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
-<span class="sd">    &gt;&gt;&gt; from safefeat import build_features, WindowAgg</span>
-<span class="sd">    &gt;&gt;&gt;</span>
-<span class="sd">    &gt;&gt;&gt; spine = pd.DataFrame({</span>
-<span class="sd">    ...     &quot;entity_id&quot;: [&quot;u1&quot;],</span>
-<span class="sd">    ...     &quot;cutoff_time&quot;: [&quot;2024-01-10&quot;],</span>
-<span class="sd">    ... })</span>
-<span class="sd">    &gt;&gt;&gt;</span>
-<span class="sd">    &gt;&gt;&gt; events = pd.DataFrame({</span>
-<span class="sd">    ...     &quot;entity_id&quot;: [&quot;u1&quot;, &quot;u1&quot;],</span>
-<span class="sd">    ...     &quot;event_time&quot;: [&quot;2024-01-05&quot;, &quot;2024-01-08&quot;],</span>
-<span class="sd">    ...     &quot;amount&quot;: [10, 20],</span>
-<span class="sd">    ... })</span>
-<span class="sd">    &gt;&gt;&gt;</span>
-<span class="sd">    &gt;&gt;&gt; spec = [</span>
-<span class="sd">    ...     WindowAgg(</span>
-<span class="sd">    ...         table=&quot;events&quot;,</span>
-<span class="sd">    ...         windows=[&quot;7D&quot;],</span>
-<span class="sd">    ...         metrics={&quot;amount&quot;: [&quot;sum&quot;], &quot;*&quot;: [&quot;count&quot;]},</span>
-<span class="sd">    ...     )</span>
-<span class="sd">    ... ]</span>
-<span class="sd">    &gt;&gt;&gt;</span>
-<span class="sd">    &gt;&gt;&gt; X = build_features(</span>
-<span class="sd">    ...     spine,</span>
-<span class="sd">    ...     {&quot;events&quot;: events},</span>
-<span class="sd">    ...     spec,</span>
-<span class="sd">    ...     event_time_cols={&quot;events&quot;: &quot;event_time&quot;},</span>
-<span class="sd">    ... )</span>
-<span class="sd">    &gt;&gt;&gt; X.filter(like=&quot;events__&quot;).columns.tolist()</span>
-<span class="sd">    [&#39;events__amount__sum__7d&#39;, &#39;events__n_events__7d&#39;]</span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```python</span>
+<span class="sd">    import pandas as pd</span>
+<span class="sd">    from safefeat import build_features, WindowAgg</span>
+
+<span class="sd">    spine = pd.DataFrame({</span>
+<span class="sd">        &quot;entity_id&quot;: [&quot;u1&quot;],</span>
+<span class="sd">        &quot;cutoff_time&quot;: [&quot;2024-01-10&quot;],</span>
+<span class="sd">    })</span>
+
+<span class="sd">    events = pd.DataFrame({</span>
+<span class="sd">        &quot;entity_id&quot;: [&quot;u1&quot;, &quot;u1&quot;],</span>
+<span class="sd">        &quot;event_time&quot;: [&quot;2024-01-05&quot;, &quot;2024-01-08&quot;],</span>
+<span class="sd">        &quot;amount&quot;: [10, 20],</span>
+<span class="sd">    })</span>
+
+<span class="sd">    spec = [</span>
+<span class="sd">        WindowAgg(</span>
+<span class="sd">            table=&quot;events&quot;,</span>
+<span class="sd">            windows=[&quot;7D&quot;],</span>
+<span class="sd">            metrics={&quot;amount&quot;: [&quot;sum&quot;], &quot;*&quot;: [&quot;count&quot;]},</span>
+<span class="sd">        )</span>
+<span class="sd">    ]</span>
+
+<span class="sd">    X = build_features(</span>
+<span class="sd">        spine=spine,</span>
+<span class="sd">        tables={&quot;events&quot;: events},</span>
+<span class="sd">        spec=spec,</span>
+<span class="sd">        event_time_cols={&quot;events&quot;: &quot;event_time&quot;},</span>
+<span class="sd">    )</span>
+
+<span class="sd">    X.filter(like=&quot;events__&quot;).columns.tolist()</span>
+<span class="sd">    # [&#39;events__amount__sum__7d&#39;, &#39;events__n_events__7d&#39;]</span>
+<span class="sd">    ```</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">table</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">windows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -1715,34 +1720,33 @@ can be restricted to events that match <code>filter_col == filter_value</code>.<
     </table>
 
 
-<details class="example" open>
-  <summary>Example</summary>
-  <blockquote>
-<blockquote>
-<blockquote>
-<p>import pandas as pd
-from safefeat import build_features, RecencyBlock</p>
-<p>spine = pd.DataFrame({
-...     "entity_id": ["u1"],
-...     "cutoff_time": ["2024-01-10"],
-... })</p>
-<p>events = pd.DataFrame({
-...     "entity_id": ["u1"],
-...     "event_time": ["2024-01-08"],
-... })</p>
-<p>spec = [RecencyBlock(table="events")]</p>
-<p>X = build_features(
-...     spine,
-...     {"events": events},
-...     spec,
-...     event_time_cols={"events": "event_time"},
-... )
-X["events__recency"].iloc[0]
-2</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</details>
+<p><span class="doc-section-title">Examples:</span></p>
+    <pre><code class="language-python">import pandas as pd
+from safefeat import build_features, RecencyBlock
+
+spine = pd.DataFrame({
+    &quot;entity_id&quot;: [&quot;u1&quot;],
+    &quot;cutoff_time&quot;: [&quot;2024-01-10&quot;],
+})
+
+events = pd.DataFrame({
+    &quot;entity_id&quot;: [&quot;u1&quot;],
+    &quot;event_time&quot;: [&quot;2024-01-08&quot;],
+})
+
+spec = [RecencyBlock(table=&quot;events&quot;)]
+
+X = build_features(
+    spine=spine,
+    tables={&quot;events&quot;: events},
+    spec=spec,
+    event_time_cols={&quot;events&quot;: &quot;event_time&quot;},
+)
+
+X[&quot;events__recency&quot;].iloc[0]
+# 2
+</code></pre>
+
 
 
 
@@ -1752,10 +1756,7 @@ X["events__recency"].iloc[0]
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/safefeat/spec.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 90</span>
 <span class="normal"> 91</span>
 <span class="normal"> 92</span>
 <span class="normal"> 93</span>
@@ -1803,7 +1804,12 @@ X["events__recency"].iloc[0]
 <span class="normal">135</span>
 <span class="normal">136</span>
 <span class="normal">137</span>
-<span class="normal">138</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">RecencyBlock</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Specification for computing time since the most recent event.</span>
 
@@ -1820,32 +1826,34 @@ X["events__recency"].iloc[0]
 <span class="sd">    filter_value:</span>
 <span class="sd">        Optional value that ``filter_col`` must equal to be considered.</span>
 
-<span class="sd">    Example</span>
-<span class="sd">    -------</span>
-<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
-<span class="sd">    &gt;&gt;&gt; from safefeat import build_features, RecencyBlock</span>
-<span class="sd">    &gt;&gt;&gt;</span>
-<span class="sd">    &gt;&gt;&gt; spine = pd.DataFrame({</span>
-<span class="sd">    ...     &quot;entity_id&quot;: [&quot;u1&quot;],</span>
-<span class="sd">    ...     &quot;cutoff_time&quot;: [&quot;2024-01-10&quot;],</span>
-<span class="sd">    ... })</span>
-<span class="sd">    &gt;&gt;&gt;</span>
-<span class="sd">    &gt;&gt;&gt; events = pd.DataFrame({</span>
-<span class="sd">    ...     &quot;entity_id&quot;: [&quot;u1&quot;],</span>
-<span class="sd">    ...     &quot;event_time&quot;: [&quot;2024-01-08&quot;],</span>
-<span class="sd">    ... })</span>
-<span class="sd">    &gt;&gt;&gt;</span>
-<span class="sd">    &gt;&gt;&gt; spec = [RecencyBlock(table=&quot;events&quot;)]</span>
-<span class="sd">    &gt;&gt;&gt;</span>
-<span class="sd">    &gt;&gt;&gt; X = build_features(</span>
-<span class="sd">    ...     spine,</span>
-<span class="sd">    ...     {&quot;events&quot;: events},</span>
-<span class="sd">    ...     spec,</span>
-<span class="sd">    ...     event_time_cols={&quot;events&quot;: &quot;event_time&quot;},</span>
-<span class="sd">    ... )</span>
-<span class="sd">    &gt;&gt;&gt; X[&quot;events__recency&quot;].iloc[0]</span>
-<span class="sd">    2</span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```python</span>
+<span class="sd">    import pandas as pd</span>
+<span class="sd">    from safefeat import build_features, RecencyBlock</span>
 
+<span class="sd">    spine = pd.DataFrame({</span>
+<span class="sd">        &quot;entity_id&quot;: [&quot;u1&quot;],</span>
+<span class="sd">        &quot;cutoff_time&quot;: [&quot;2024-01-10&quot;],</span>
+<span class="sd">    })</span>
+
+<span class="sd">    events = pd.DataFrame({</span>
+<span class="sd">        &quot;entity_id&quot;: [&quot;u1&quot;],</span>
+<span class="sd">        &quot;event_time&quot;: [&quot;2024-01-08&quot;],</span>
+<span class="sd">    })</span>
+
+<span class="sd">    spec = [RecencyBlock(table=&quot;events&quot;)]</span>
+
+<span class="sd">    X = build_features(</span>
+<span class="sd">        spine=spine,</span>
+<span class="sd">        tables={&quot;events&quot;: events},</span>
+<span class="sd">        spec=spec,</span>
+<span class="sd">        event_time_cols={&quot;events&quot;: &quot;event_time&quot;},</span>
+<span class="sd">    )</span>
+
+<span class="sd">    X[&quot;events__recency&quot;].iloc[0]</span>
+<span class="sd">    # 2</span>
+<span class="sd">    ```</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">table</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">filter_col</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1929,7 +1937,7 @@ X["events__recency"].iloc[0]
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": "0.1.9"}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": "0.2.0"}</script>
     
     
       <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
