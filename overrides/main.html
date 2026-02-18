@@ -27,7 +27,7 @@
 <hr class="sf-divider">
 
 <!-- THE PROBLEM -->
-<div class="sf-section">
+<div class="sf-section" style="padding-left: 0.5rem;"></div>
   <div class="sf-label">The problem</div>
   <h2 class="sf-h2">Data leakage silently destroys your model</h2>
   <p class="sf-body">When you compute features like "total purchases in the last 30 days" without anchoring to a specific point in time, you accidentally include future data. Your model looks great in training — then falls apart in production.</p>
@@ -212,11 +212,15 @@ X = build_features(
   <div class="sf-faq">
     <div class="sf-faq-item">
       <div class="sf-faq-q" onclick="this.parentElement.classList.toggle('open')">
-        What does <code>allowed_lag="0s"</code> actually do? <em class="sf-arrow">▾</em>
+        What does <code>allowed_lag</code> actually do?
+        <em class="faq-arrow">▾</em>
       </div>
-      <div class="sf-faq-a">
-        Controls whether events at the <em>exact</em> cutoff time are included. With <code>"0s"</code> they are excluded (strict). Set <code>allowed_lag="1s"</code> to include same-timestamp events.
-      </div>
+      <div class="faq-a">
+        allowed_lag defines a tolerance window for future timestamps when enforcing leakage safety.
+        In real-world systems, timestamps are messy — for example, database writes are slightly delayed.
+        Core rule: <code>event_time &lt;= cutoff_time + allowed_lag</code>, so when <code>allowed_lag="5s"</code>
+        events within 5 seconds of the cutoff are still included.
+    </div>
     </div>
     <div class="sf-faq-item">
       <div class="sf-faq-q" onclick="this.parentElement.classList.toggle('open')">
@@ -224,14 +228,6 @@ X = build_features(
       </div>
       <div class="sf-faq-a">
         Almost always a datetime format mismatch. Run <code>pd.to_datetime()</code> on both <code>cutoff_time</code> and <code>event_time</code> before calling <code>build_features</code>. Also check timezone consistency — mixing tz-aware and tz-naive timestamps causes silent join failures.
-      </div>
-    </div>
-    <div class="sf-faq-item">
-      <div class="sf-faq-q" onclick="this.parentElement.classList.toggle('open')">
-        How is this different from Featuretools? <em class="sf-arrow">▾</em>
-      </div>
-      <div class="sf-faq-a">
-        Featuretools requires restructuring your data around its entity set abstraction. SafeFeat is minimal — bring plain pandas DataFrames, define a spec, get a DataFrame back. It slots into an existing pipeline with almost no ceremony.
       </div>
     </div>
     <div class="sf-faq-item">
@@ -255,6 +251,5 @@ function sfTab(name, el) {
 </script>
 
 {% else %}
-  {{ content }}
+  {{ super() }}
 {% endif %}
-{% endblock %}
