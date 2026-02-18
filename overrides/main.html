@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block styles %}
+  {{ super() }}
+{% endblock %}
+
+{% block content %}
+{% if page.file.src_path == "index.md" %}
+
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<div class="sf-hero">
+  <div class="sf-badge">✦ v0.1.1 — now on PyPI</div>
+  <h1 class="sf-h1">Feature engineering<br>without <em>the leakage</em></h1>
+  <p class="sf-sub">
+    SafeFeat builds ML features from event logs using only data available at prediction time — so your model learns what it'd actually know in production.
+  </p>
+  <div class="sf-actions">
+    <a href="getting-started/" class="sf-btn sf-btn-primary">Read the docs →</a>
+    <a href="https://github.com/AlishaAng/safefeat" class="sf-btn sf-btn-ghost">View on GitHub</a>
+  </div>
+  <div class="sf-install">
+    <span>$</span> pip install safefeat
+  </div>
+</div>
+
+<hr class="sf-divider">
+
+<!-- THE PROBLEM -->
+<div class="sf-section">
+  <div class="sf-label">The problem</div>
+  <h2 class="sf-h2">Data leakage silently destroys your model</h2>
+  <p class="sf-body">When you compute features like "total purchases in the last 30 days" without anchoring to a specific point in time, you accidentally include future data. Your model looks great in training — then falls apart in production.</p>
+
+  <div class="sf-compare">
+    <div class="sf-card sf-bad">
+      <div class="sf-tag sf-tag-bad">⚠ Without SafeFeat</div>
+      <p>Naively grouping by user leaks future events into past rows. Your validation AUC is 0.91. Production AUC is 0.73.</p>
+      <pre><code><span class="cm"># ❌ Leaky — uses ALL events, including ones after cutoff</span>
+features = events.groupby(<span class="st">"user_id"</span>)[<span class="st">"amount"</span>].sum()
+df = spine.merge(features, on=<span class="st">"user_id"</span>)</code></pre>
+    </div>
+    <div class="sf-card sf-good">
+      <div class="sf-tag sf-tag-good">✓ With SafeFeat</div>
+      <p>SafeFeat enforces point-in-time correctness automatically. No manual filtering. No accidental leakage.</p>
+      <pre><code><span class="cm"># ✅ Safe — only uses events before each cutoff_time</span>
+<span class="kw">from</span> safefeat <span class="kw">import</span> build_features, WindowAgg
+
+X = build_features(spine, tables, spec,
+      event_time_cols={<span class="st">"events"</span>: <span class="st">"event_time"</span>})</code></pre>
+    </div>
+  </div>
+</div>
+
+<hr class="sf-divider">
+
+<!-- WHY -->
+<div class="sf-section">
+  <div class="sf-label">Why SafeFeat</div>
+  <h2 class="sf-h2">Built for real ML pipelines</h2>
+  <div class="sf-why">
+    <div class="sf-why-card">
+      <div class="sf-icon">🔒</div>
+      <h3>Leakage-proof by design</h3>
+      <p>Every feature is computed relative to each entity's cutoff time. Future data physically cannot be included.</p>
+    </div>
+    <div class="sf-why-card">
+      <div class="sf-icon">📋</div>
+      <h3>Audit trail</h3>
+      <p>See exactly which events were joined, kept, and dropped for each prediction point. Debug in minutes, not days.</p>
+    </div>
+    <div class="sf-why-card">
+      <div class="sf-icon">🧩</div>
+      <h3>Declarative specs</h3>
+      <p>Define features once. Run them across any spine. No duplicated filtering logic across your codebase.</p>
+    </div>
+    <div class="sf-why-card">
+      <div class="sf-icon">⚡</div>
+      <h3>Fast & pandas-native</h3>
+      <p>Vectorised operations on standard DataFrames. No new infrastructure required.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="sf-divider">
+
+<!-- CONCEPTS -->
+<div class="sf-section">
+  <div class="sf-label">Core concepts</div>
+  <h2 class="sf-h2">Three things you need to know</h2>
+  <div class="sf-concepts">
+    <div class="sf-concept-card">
+      <div class="sf-pill">spine</div>
+      <h3>When to predict</h3>
+      <p>A DataFrame with <code>entity_id</code> and <code>cutoff_time</code>. Each row is one prediction point — e.g. "what did we know about user u1 on Jan 10?"</p>
+    </div>
+    <div class="sf-concept-card">
+      <div class="sf-pill">events</div>
+      <h3>Your raw data</h3>
+      <p>A time-series DataFrame with entity IDs, event timestamps, and attributes. Purchases, logins, clicks — anything with a timestamp.</p>
+    </div>
+    <div class="sf-concept-card">
+      <div class="sf-pill">spec</div>
+      <h3>What to compute</h3>
+      <p>A list of feature blocks like <code>WindowAgg</code> or <code>RecencyBlock</code>. Declarative, readable, and reusable across projects.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="sf-divider">
+
+<!-- EXAMPLE -->
+<div class="sf-section">
+  <div class="sf-label">Quick start</div>
+  <h2 class="sf-h2">Real-world example: churn prediction</h2>
+  <p class="sf-body">Computing 7-day and 30-day purchase features for a set of users, safely anchored to their churn prediction date.</p>
+
+  <div class="sf-tabs">
+    <div class="sf-tab-btns">
+      <button class="sf-tab-btn active" onclick="sfTab('basic', this)">WindowAgg</button>
+      <button class="sf-tab-btn" onclick="sfTab('recency', this)">RecencyBlock</button>
+      <button class="sf-tab-btn" onclick="sfTab('audit', this)">Audit Report</button>
+    </div>
+
+    <div id="sf-basic" class="sf-tab-pane active">
+<pre><code><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> safefeat <span class="kw">import</span> build_features, WindowAgg
+
+spine = pd.DataFrame({
+    <span class="st">"entity_id"</span>:   [<span class="st">"u1"</span>, <span class="st">"u2"</span>],
+    <span class="st">"cutoff_time"</span>: [<span class="st">"2024-01-10"</span>, <span class="st">"2024-01-31"</span>],
+})
+
+events = pd.DataFrame({
+    <span class="st">"entity_id"</span>:  [<span class="st">"u1"</span>,         <span class="st">"u1"</span>,         <span class="st">"u2"</span>,         <span class="st">"u2"</span>],
+    <span class="st">"event_time"</span>: [<span class="st">"2024-01-05"</span>, <span class="st">"2024-01-06"</span>, <span class="st">"2024-01-10"</span>, <span class="st">"2024-01-30"</span>],
+    <span class="st">"amount"</span>:     [<span class="nm">10.0</span>, <span class="nm">20.0</span>, <span class="nm">5.0</span>, <span class="nm">25.0</span>],
+    <span class="st">"event_type"</span>: [<span class="st">"click"</span>, <span class="st">"purchase"</span>, <span class="st">"purchase"</span>, <span class="st">"click"</span>],
+})
+
+spec = [
+    WindowAgg(
+        table=<span class="st">"events"</span>,
+        windows=[<span class="st">"7D"</span>, <span class="st">"30D"</span>],
+        metrics={
+            <span class="st">"*"</span>:          [<span class="st">"count"</span>],
+            <span class="st">"amount"</span>:     [<span class="st">"sum"</span>, <span class="st">"mean"</span>],
+            <span class="st">"event_type"</span>: [<span class="st">"nunique"</span>],
+        },
+    )
+]
+
+X = build_features(
+    spine=spine,
+    tables={<span class="st">"events"</span>: events},
+    spec=spec,
+    event_time_cols={<span class="st">"events"</span>: <span class="st">"event_time"</span>},
+    allowed_lag=<span class="st">"0s"</span>,
+)</code></pre>
+    </div>
+
+    <div id="sf-recency" class="sf-tab-pane">
+<pre><code><span class="kw">from</span> safefeat <span class="kw">import</span> RecencyBlock
+
+spec = [RecencyBlock(table=<span class="st">"events"</span>)]
+
+X = build_features(
+    spine=spine,
+    tables={<span class="st">"events"</span>: events},
+    spec=spec,
+    event_time_cols={<span class="st">"events"</span>: <span class="st">"event_time"</span>},
+)
+<span class="cm"># Adds: events__recency (days since last event before cutoff)</span>
+<span class="cm"># NaN if no events exist before cutoff</span></code></pre>
+    </div>
+
+    <div id="sf-audit" class="sf-tab-pane">
+<pre><code>X, audit = build_features(
+    spine=spine,
+    tables={<span class="st">"events"</span>: events},
+    spec=spec,
+    event_time_cols={<span class="st">"events"</span>: <span class="st">"event_time"</span>},
+    return_audit=<span class="kw">True</span>,
+)
+
+<span class="cm"># entity_id | cutoff_time | events_joined | events_kept | events_dropped</span>
+<span class="cm"># u1        | 2024-01-10  | 4             | 2           | 2  ✓</span></code></pre>
+    </div>
+  </div>
+
+  <!-- NAMING LEGEND -->
+  <div class="sf-legend">
+    <h3>🏷 Column naming convention</h3>
+    <div class="sf-colname">
+      <span class="cn cn-table">events</span><span class="cn-sep">__</span><span class="cn cn-col">amount</span><span class="cn-sep">__</span><span class="cn cn-agg">sum</span><span class="cn-sep">__</span><span class="cn cn-win">7d</span>
+    </div>
+    <div class="sf-legend-row">
+      <span class="sf-chip"><span class="dot" style="background:#7c3aed"></span> source table</span>
+      <span class="sf-chip"><span class="dot" style="background:#16a34a"></span> column (* = row count)</span>
+      <span class="sf-chip"><span class="dot" style="background:#d97706"></span> aggregation</span>
+      <span class="sf-chip"><span class="dot" style="background:#dc2626"></span> time window</span>
+    </div>
+  </div>
+</div>
+
+<hr class="sf-divider">
+
+<!-- FAQ -->
+<div class="sf-section">
+  <div class="sf-label">Common questions</div>
+  <h2 class="sf-h2">Things users run into</h2>
+  <div class="sf-faq">
+    <div class="sf-faq-item">
+      <div class="sf-faq-q" onclick="this.parentElement.classList.toggle('open')">
+        What does <code>allowed_lag="0s"</code> actually do? <em class="sf-arrow">▾</em>
+      </div>
+      <div class="sf-faq-a">
+        Controls whether events at the <em>exact</em> cutoff time are included. With <code>"0s"</code> they are excluded (strict). Set <code>allowed_lag="1s"</code> to include same-timestamp events.
+      </div>
+    </div>
+    <div class="sf-faq-item">
+      <div class="sf-faq-q" onclick="this.parentElement.classList.toggle('open')">
+        My features are all NaN — what's wrong? <em class="sf-arrow">▾</em>
+      </div>
+      <div class="sf-faq-a">
+        Almost always a datetime format mismatch. Run <code>pd.to_datetime()</code> on both <code>cutoff_time</code> and <code>event_time</code> before calling <code>build_features</code>. Also check timezone consistency — mixing tz-aware and tz-naive timestamps causes silent join failures.
+      </div>
+    </div>
+    <div class="sf-faq-item">
+      <div class="sf-faq-q" onclick="this.parentElement.classList.toggle('open')">
+        How is this different from Featuretools? <em class="sf-arrow">▾</em>
+      </div>
+      <div class="sf-faq-a">
+        Featuretools requires restructuring your data around its entity set abstraction. SafeFeat is minimal — bring plain pandas DataFrames, define a spec, get a DataFrame back. It slots into an existing pipeline with almost no ceremony.
+      </div>
+    </div>
+    <div class="sf-faq-item">
+      <div class="sf-faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Can I use multiple event tables? <em class="sf-arrow">▾</em>
+      </div>
+      <div class="sf-faq-a">
+        Yes — pass multiple tables to the <code>tables</code> dict and reference each by name in your spec. All results are merged onto the spine automatically.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function sfTab(name, el) {
+  document.querySelectorAll('.sf-tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sf-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sf-' + name).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+
+{% else %}
+  {{ content }}
+{% endif %}
+{% endblock %}
