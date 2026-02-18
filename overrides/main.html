@@ -7,247 +7,277 @@
 {% block content %}
 {% if page.file.src_path == "index.md" %}
 
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-<div class="sf-hero">
-  <div class="sf-badge">✦ v0.1.1 — now on PyPI</div>
-  <h1 class="sf-h1">Feature engineering<br>without <em>the leakage</em></h1>
-  <p class="sf-sub">
-    SafeFeat builds ML features from event logs using only data available at prediction time — so your model learns what it'd actually know in production.
-  </p>
-  <div class="sf-actions">
-    <a href="getting-started/" class="sf-btn sf-btn-primary">Read the docs →</a>
-    <a href="https://github.com/AlishaAng/safefeat" class="sf-btn sf-btn-ghost">View on GitHub</a>
-  </div>
-  <div class="sf-install">
-    <span>$</span> pip install safefeat
-  </div>
-</div>
+<div class="sf-wrap">
 
-<hr class="sf-divider">
-
-<!-- THE PROBLEM -->
-<div class="sf-section" style="padding-left: 0.5rem;">
-  <div class="sf-label">The problem</div>
-  <h2 class="sf-h2">Data leakage silently destroys your model</h2>
-  <p class="sf-body">When you compute features like "total purchases in the last 30 days" without anchoring to a specific point in time, you accidentally include future data. Your model looks great in training — then falls apart in production.</p>
-
-  <div class="sf-compare">
-    <div class="sf-card sf-bad">
-      <div class="sf-tag sf-tag-bad">⚠ Without SafeFeat</div>
-      <p>Naively grouping by user leaks future events into past rows. Your validation AUC is 0.91. Production AUC is 0.73.</p>
-      <pre><code><span class="cm"># ❌ Leaky — uses ALL events, including ones after cutoff</span>
-features = events.groupby(<span class="st">"user_id"</span>)[<span class="st">"amount"</span>].sum()
-df = spine.merge(features, on=<span class="st">"user_id"</span>)</code></pre>
+  <!-- HERO -->
+  <div class="sf-hero">
+    <img src="assets/logo.png" alt="safefeat logo" class="sf-logo">
+    <p class="sf-tagline">Leakage-safe, point-in-time feature engineering for event logs.</p>
+    <div class="sf-install">
+      <code>pip install safefeat</code>
     </div>
-    <div class="sf-card sf-good">
-      <div class="sf-tag sf-tag-good">✓ With SafeFeat</div>
-      <p>SafeFeat enforces point-in-time correctness automatically. No manual filtering. No accidental leakage.</p>
-      <pre><code><span class="cm"># ✅ Safe — only uses events before each cutoff_time</span>
-<span class="kw">from</span> safefeat <span class="kw">import</span> build_features, WindowAgg
-
-X = build_features(spine, tables, spec,
-      event_time_cols={<span class="st">"events"</span>: <span class="st">"event_time"</span>})</code></pre>
+    <div class="sf-links">
+      <a href="getting-started/">Getting Started</a>
+      <span>·</span>
+      <a href="api/">API Reference</a>
+      <span>·</span>
+      <a href="https://pypi.org/project/safefeat/">PyPI</a>
+      <span>·</span>
+      <a href="https://github.com/AlishaAng/safefeat">GitHub</a>
     </div>
   </div>
-</div>
 
-<hr class="sf-divider">
+  <hr class="sf-rule">
 
-<!-- WHY -->
-<div class="sf-section">
-  <div class="sf-label">Why SafeFeat</div>
-  <h2 class="sf-h2">Built for real ML pipelines</h2>
-  <div class="sf-why">
-    <div class="sf-why-card">
-      <div class="sf-icon">🔒</div>
-      <h3>Leakage-proof by design</h3>
-      <p>Every feature is computed relative to each entity's cutoff time. Future data physically cannot be included.</p>
-    </div>
-    <div class="sf-why-card">
-      <div class="sf-icon">📋</div>
-      <h3>Audit trail</h3>
-      <p>See exactly which events were joined, kept, and dropped for each prediction point. Debug in minutes, not days.</p>
-    </div>
-    <div class="sf-why-card">
-      <div class="sf-icon">🧩</div>
-      <h3>Declarative specs</h3>
-      <p>Define features once. Run them across any spine. No duplicated filtering logic across your codebase.</p>
-    </div>
-    <div class="sf-why-card">
-      <div class="sf-icon">⚡</div>
-      <h3>Fast & pandas-native</h3>
-      <p>Vectorised operations on standard DataFrames. No new infrastructure required.</p>
-    </div>
+  <!-- WHAT IT DOES -->
+  <div class="sf-section">
+    <p class="sf-lead">
+      <code>safefeat</code> builds ML features from event data using only information available
+      <em>at prediction time</em> — so your model learns what it would actually know in production.
+      No future data, no silent leakage.
+    </p>
   </div>
-</div>
 
-<hr class="sf-divider">
+  <hr class="sf-rule">
 
-<!-- CONCEPTS -->
-<div class="sf-section">
-  <div class="sf-label">Core concepts</div>
-  <h2 class="sf-h2">Three things you need to know</h2>
-  <div class="sf-concepts">
-    <div class="sf-concept-card">
-      <div class="sf-pill">spine</div>
-      <h3>When to predict</h3>
-      <p>A DataFrame with <code>entity_id</code> and <code>cutoff_time</code>. Each row is one prediction point — e.g. "what did we know about user u1 on Jan 10?"</p>
-    </div>
-    <div class="sf-concept-card">
-      <div class="sf-pill">events</div>
-      <h3>Your raw data</h3>
-      <p>A time-series DataFrame with entity IDs, event timestamps, and attributes. Purchases, logins, clicks — anything with a timestamp.</p>
-    </div>
-    <div class="sf-concept-card">
-      <div class="sf-pill">spec</div>
-      <h3>What to compute</h3>
-      <p>A list of feature blocks like <code>WindowAgg</code> or <code>RecencyBlock</code>. Declarative, readable, and reusable across projects.</p>
-    </div>
+  <!-- HOW IT WORKS -->
+  <div class="sf-section">
+    <h2>How it works</h2>
+    <p class="sf-body">safefeat works with three components:</p>
+    <table class="sf-table">
+      <thead>
+        <tr><th>Component</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>spine</code></td><td>When to make predictions — one row per <code>(entity_id, cutoff_time)</code></td></tr>
+        <tr><td><code>events</code></td><td>Historical time-series data tied to each entity</td></tr>
+        <tr><td><code>spec</code></td><td>Declarative definition of what features to compute</td></tr>
+      </tbody>
+    </table>
+    <p class="sf-body">
+      For each row in the spine, safefeat joins only events where
+      <code>event_time &lt;= cutoff_time</code>, then computes your features.
+      Future events are physically excluded.
+    </p>
   </div>
-</div>
 
-<hr class="sf-divider">
+  <hr class="sf-rule">
 
-<!-- EXAMPLE -->
-<div class="sf-section">
-  <div class="sf-label">Quick start</div>
-  <h2 class="sf-h2">Real-world example: churn prediction</h2>
-  <p class="sf-body">Computing 7-day and 30-day purchase features for a set of users, safely anchored to their churn prediction date.</p>
+  <!-- FEATURES -->
+  <div class="sf-section">
+    <h2>Features</h2>
+    <ul class="sf-list">
+      <li><strong>Point-in-time correctness</strong> — events after each cutoff are automatically excluded</li>
+      <li><strong>Window aggregations</strong> — count, sum, mean, nunique over any time window via <code>WindowAgg</code></li>
+      <li><strong>Recency features</strong> — days since last event, optionally filtered, via <code>RecencyBlock</code></li>
+      <li><strong>Audit trail</strong> — inspect exactly how many events were joined, kept, and dropped</li>
+      <li><strong>Pandas-native</strong> — works with standard DataFrames, no new infrastructure needed</li>
+    </ul>
+  </div>
 
-  <div class="sf-tabs">
-    <div class="sf-tab-btns">
-      <button class="sf-tab-btn active" onclick="sfTab('basic', this)">WindowAgg</button>
-      <button class="sf-tab-btn" onclick="sfTab('recency', this)">RecencyBlock</button>
-      <button class="sf-tab-btn" onclick="sfTab('audit', this)">Audit Report</button>
-    </div>
+  <hr class="sf-rule">
 
-    <div id="sf-basic" class="sf-tab-pane active">
-<pre><code><span class="kw">import</span> pandas <span class="kw">as</span> pd
-<span class="kw">from</span> safefeat <span class="kw">import</span> build_features, WindowAgg
+  <!-- EXAMPLE -->
+  <div class="sf-section">
+    <h2>Example</h2>
+<pre class="sf-pre"><code><span class="sf-kw">import</span> pandas <span class="sf-kw">as</span> pd
+<span class="sf-kw">from</span> safefeat <span class="sf-kw">import</span> build_features, WindowAgg, RecencyBlock
 
 spine = pd.DataFrame({
-    <span class="st">"entity_id"</span>:   [<span class="st">"u1"</span>, <span class="st">"u2"</span>],
-    <span class="st">"cutoff_time"</span>: [<span class="st">"2024-01-10"</span>, <span class="st">"2024-01-31"</span>],
+    <span class="sf-st">"entity_id"</span>:   [<span class="sf-st">"u1"</span>, <span class="sf-st">"u2"</span>],
+    <span class="sf-st">"cutoff_time"</span>: [<span class="sf-st">"2024-01-10"</span>, <span class="sf-st">"2024-01-31"</span>],
 })
 
 events = pd.DataFrame({
-    <span class="st">"entity_id"</span>:  [<span class="st">"u1"</span>,         <span class="st">"u1"</span>,         <span class="st">"u2"</span>,         <span class="st">"u2"</span>],
-    <span class="st">"event_time"</span>: [<span class="st">"2024-01-05"</span>, <span class="st">"2024-01-06"</span>, <span class="st">"2024-01-10"</span>, <span class="st">"2024-01-30"</span>],
-    <span class="st">"amount"</span>:     [<span class="nm">10.0</span>, <span class="nm">20.0</span>, <span class="nm">5.0</span>, <span class="nm">25.0</span>],
-    <span class="st">"event_type"</span>: [<span class="st">"click"</span>, <span class="st">"purchase"</span>, <span class="st">"purchase"</span>, <span class="st">"click"</span>],
+    <span class="sf-st">"entity_id"</span>:  [<span class="sf-st">"u1"</span>, <span class="sf-st">"u1"</span>, <span class="sf-st">"u2"</span>, <span class="sf-st">"u2"</span>],
+    <span class="sf-st">"event_time"</span>: [<span class="sf-st">"2024-01-05"</span>, <span class="sf-st">"2024-01-06"</span>, <span class="sf-st">"2024-01-10"</span>, <span class="sf-st">"2024-01-30"</span>],
+    <span class="sf-st">"amount"</span>:     [<span class="sf-nm">10.0</span>, <span class="sf-nm">20.0</span>, <span class="sf-nm">5.0</span>, <span class="sf-nm">25.0</span>],
+    <span class="sf-st">"event_type"</span>: [<span class="sf-st">"click"</span>, <span class="sf-st">"purchase"</span>, <span class="sf-st">"purchase"</span>, <span class="sf-st">"click"</span>],
 })
 
 spec = [
     WindowAgg(
-        table=<span class="st">"events"</span>,
-        windows=[<span class="st">"7D"</span>, <span class="st">"30D"</span>],
+        table=<span class="sf-st">"events"</span>,
+        windows=[<span class="sf-st">"7D"</span>, <span class="sf-st">"30D"</span>],
         metrics={
-            <span class="st">"*"</span>:          [<span class="st">"count"</span>],
-            <span class="st">"amount"</span>:     [<span class="st">"sum"</span>, <span class="st">"mean"</span>],
-            <span class="st">"event_type"</span>: [<span class="st">"nunique"</span>],
+            <span class="sf-st">"*"</span>:          [<span class="sf-st">"count"</span>],
+            <span class="sf-st">"amount"</span>:     [<span class="sf-st">"sum"</span>, <span class="sf-st">"mean"</span>],
+            <span class="sf-st">"event_type"</span>: [<span class="sf-st">"nunique"</span>],
         },
-    )
+    ),
+    RecencyBlock(table=<span class="sf-st">"events"</span>),
 ]
 
 X = build_features(
     spine=spine,
-    tables={<span class="st">"events"</span>: events},
+    tables={<span class="sf-st">"events"</span>: events},
     spec=spec,
-    event_time_cols={<span class="st">"events"</span>: <span class="st">"event_time"</span>},
-    allowed_lag=<span class="st">"0s"</span>,
+    event_time_cols={<span class="sf-st">"events"</span>: <span class="sf-st">"event_time"</span>},
+    allowed_lag=<span class="sf-st">"0s"</span>,
 )</code></pre>
-    </div>
-
-    <div id="sf-recency" class="sf-tab-pane">
-<pre><code><span class="kw">from</span> safefeat <span class="kw">import</span> RecencyBlock
-
-spec = [RecencyBlock(table=<span class="st">"events"</span>)]
-
-X = build_features(
-    spine=spine,
-    tables={<span class="st">"events"</span>: events},
-    spec=spec,
-    event_time_cols={<span class="st">"events"</span>: <span class="st">"event_time"</span>},
-)
-<span class="cm"># Adds: events__recency (days since last event before cutoff)</span>
-<span class="cm"># NaN if no events exist before cutoff</span></code></pre>
-    </div>
-
-    <div id="sf-audit" class="sf-tab-pane">
-<pre><code>X, audit = build_features(
-    spine=spine,
-    tables={<span class="st">"events"</span>: events},
-    spec=spec,
-    event_time_cols={<span class="st">"events"</span>: <span class="st">"event_time"</span>},
-    return_audit=<span class="kw">True</span>,
-)
-
-<span class="cm"># entity_id | cutoff_time | events_joined | events_kept | events_dropped</span>
-<span class="cm"># u1        | 2024-01-10  | 4             | 2           | 2  ✓</span></code></pre>
-    </div>
   </div>
 
-  <!-- NAMING LEGEND -->
-  <div class="sf-legend">
-    <h3>🏷 Column naming convention</h3>
-    <div class="sf-colname">
-      <span class="cn cn-table">events</span><span class="cn-sep">__</span><span class="cn cn-col">amount</span><span class="cn-sep">__</span><span class="cn cn-agg">sum</span><span class="cn-sep">__</span><span class="cn cn-win">7d</span>
-    </div>
-    <div class="sf-legend-row">
-      <span class="sf-chip"><span class="dot" style="background:#7c3aed"></span> source table</span>
-      <span class="sf-chip"><span class="dot" style="background:#16a34a"></span> column (* = row count)</span>
-      <span class="sf-chip"><span class="dot" style="background:#d97706"></span> aggregation</span>
-      <span class="sf-chip"><span class="dot" style="background:#dc2626"></span> time window</span>
-    </div>
+  <hr class="sf-rule">
+
+  <!-- FOOTER LINKS -->
+  <div class="sf-footer-links">
+    <a href="getting-started/">Getting Started</a>
+    <a href="concepts/">Concepts</a>
+    <a href="api/">API Reference</a>
+    <a href="https://github.com/AlishaAng/safefeat">GitHub</a>
+    <a href="https://pypi.org/project/safefeat/">PyPI</a>
   </div>
+
 </div>
 
-<hr class="sf-divider">
-
-<!-- FAQ -->
-<div class="sf-section">
-  <div class="sf-label">Common questions</div>
-  <h2 class="sf-h2">Things users run into</h2>
-  <div class="sf-faq">
-    <div class="sf-faq-item">
-      <div class="sf-faq-q" onclick="this.parentElement.classList.toggle('open')">
-        What does <code>allowed_lag</code> actually do? <em class="sf-arrow">▾</em>
-      </div>
-      <div class="sf-faq-a">
-        <code>allowed_lag</code> defines a tolerance window for future timestamps when enforcing leakage safety.
-        In real-world systems, timestamps are messy — for example, database writes are slightly delayed.
-        Core rule: <code>event_time &lt;= cutoff_time + allowed_lag</code>, so when <code>allowed_lag="5s"</code>
-        events within 5 seconds of the cutoff are still included.
-       </div>
-    </div>
-    <div class="sf-faq-item">
-      <div class="sf-faq-q" onclick="this.parentElement.classList.toggle('open')">
-        My features are all NaN — what's wrong? <em class="sf-arrow">▾</em>
-      </div>
-      <div class="sf-faq-a">
-        Almost always a datetime format mismatch. Run <code>pd.to_datetime()</code> on both <code>cutoff_time</code> and <code>event_time</code> before calling <code>build_features</code>. Also check timezone consistency — mixing tz-aware and tz-naive timestamps causes silent join failures.
-      </div>
-    </div>
-    <div class="sf-faq-item">
-      <div class="sf-faq-q" onclick="this.parentElement.classList.toggle('open')">
-        Can I use multiple event tables? <em class="sf-arrow">▾</em>
-      </div>
-      <div class="sf-faq-a">
-        Yes — pass multiple tables to the <code>tables</code> dict and reference each by name in your spec. All results are merged onto the spine automatically.
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-function sfTab(name, el) {
-  document.querySelectorAll('.sf-tab-pane').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.sf-tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('sf-' + name).classList.add('active');
-  el.classList.add('active');
+<style>
+.sf-logo {
+  display: block;
+  margin: 0 auto 1.25rem;
+  height: 80px;
+  width: auto;
 }
-</script>
+
+.sf-wrap {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+  font-family: 'DM Sans', sans-serif;
+  color: #1e293b;
+}
+
+.sf-hero {
+  text-align: center;
+  padding-bottom: 2rem;
+}
+
+.sf-title {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 2rem !important;
+  font-weight: 500 !important;
+  color: #0f172a !important;
+  margin-bottom: 0.5rem !important;
+  border: none !important;
+}
+
+.sf-tagline {
+  font-size: 1rem;
+  color: #475569;
+  margin-bottom: 1.5rem;
+}
+
+.sf-install {
+  display: inline-block;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.5rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.9rem;
+  color: #0f172a;
+}
+
+.sf-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-size: 0.875rem;
+}
+.sf-links a { color: #2563eb; text-decoration: none; }
+.sf-links a:hover { text-decoration: underline; }
+.sf-links span { color: #94a3b8; }
+
+.sf-rule {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 0;
+}
+
+.sf-section {
+  padding: 2rem 0;
+}
+
+.sf-section h2 {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  margin-bottom: 1rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  border: none !important;
+}
+
+.sf-lead, .sf-body {
+  font-size: 0.975rem;
+  color: #334155;
+  line-height: 1.8;
+  margin: 0 0 0.75rem;
+}
+
+.sf-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin: 1rem 0;
+}
+.sf-table th {
+  text-align: left;
+  padding: 0.5rem 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-weight: 600;
+  color: #0f172a;
+}
+.sf-table td {
+  padding: 0.5rem 0.85rem;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  vertical-align: top;
+}
+
+.sf-pre {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 6px !important;
+  padding: 1.25rem !important;
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 0.8rem !important;
+  line-height: 1.75 !important;
+  overflow-x: auto;
+  margin: 0 !important;
+}
+.sf-kw { color: #7c3aed; }
+.sf-st { color: #16a34a; }
+.sf-nm { color: #d97706; }
+.sf-cm { color: #94a3b8; font-style: italic; }
+
+.sf-list {
+  padding-left: 1.25rem;
+  font-size: 0.95rem;
+  color: #334155;
+  line-height: 2.1;
+  margin: 0;
+}
+.sf-list li { margin: 0; }
+
+.sf-footer-links {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding-top: 2rem;
+  font-size: 0.875rem;
+}
+.sf-footer-links a { color: #2563eb; text-decoration: none; }
+.sf-footer-links a:hover { text-decoration: underline; }
+
+/* Hide MkDocs default padding and auto h1 */
+.md-content__inner { padding-top: 0 !important; }
+.md-typeset h1:first-child { display: none; }
+</style>
 
 {% else %}
   {{ super() }}
