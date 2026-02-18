@@ -27,7 +27,7 @@
 <hr class="sf-divider">
 
 <!-- THE PROBLEM -->
-<div class="sf-section" style="padding-left: 0.5rem;"></div>
+<div class="sf-section" style="padding-left: 0.5rem;">
   <div class="sf-label">The problem</div>
   <h2 class="sf-h2">Data leakage silently destroys your model</h2>
   <p class="sf-body">When you compute features like "total purchases in the last 30 days" without anchoring to a specific point in time, you accidentally include future data. Your model looks great in training — then falls apart in production.</p>
@@ -251,8 +251,6 @@ function sfTab(name, el) {
 </script>
 
 {% else %}
-  <div class="md-content__inner md-typeset">
-    {{ content }}
-  </div>
+  {{ super() }}
 {% endif %}
 {% endblock %}
