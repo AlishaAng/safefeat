@@ -251,6 +251,8 @@ function sfTab(name, el) {
 </script>
 
 {% else %}
-  {{ super() }}
+  <div class="md-content__inner md-typeset">
+    {{ content }}
+  </div>
 {% endif %}
 {% endblock %}
