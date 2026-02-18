@@ -19,6 +19,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/AlishaAng/safefeat"
+Documentation = "https://alishaang.github.io/safefeat/"
 Issues = "https://github.com/AlishaAng/safefeat/issues"
 
 [tool.pytest.ini_options]

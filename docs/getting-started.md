@@ -109,3 +109,47 @@ print("kept", events_audit.kept_pairs)
 print("dropped (future)", events_audit.dropped_future_pairs)
 print("max future delta", events_audit.max_future_delta)
 ```
+
+
+## Advanced: Recency Features
+
+Recency features represent the time since the most recent event before each cutoff.
+
+Common examples:
+- days since last login
+- days since last purchase
+- hours since last sensor reading
+
+### Days since last event (unfiltered)
+
+```python
+from safefeat import build_features, RecencyBlock
+
+spec = [
+    RecencyBlock(table="events")
+]
+
+X = build_features(
+    spine=spine,
+    tables={"events": events},
+    spec=spec,
+    event_time_cols={"events": "event_time"},
+)
+```
+This adds a column:
+ - events__recency
+
+### Days since last event of a specific type (filtered)
+```python
+spec = [
+    RecencyBlock(
+        table="events",
+        filter_col="event_type",
+        filter_value="purchase",
+    )
+]
+```
+This adds a column:
+- events__recency__event_type_purchase
+
+

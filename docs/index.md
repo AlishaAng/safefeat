@@ -14,26 +14,50 @@ SafeFeat is a Python library for building machine learning features from event d
 ## Quick Example
 
 ```python
+import pandas as pd
 from safefeat import build_features, WindowAgg
 
-features, report = build_features(
+spine = pd.DataFrame({
+    "entity_id": ["u1", "u2"],
+    "cutoff_time": ["2024-01-10", "2024-01-31"],
+})
+
+events = pd.DataFrame({
+    "entity_id": ["u1", "u1", "u2", "u2"],
+    "event_time": ["2024-01-05", "2024-01-06", "2024-01-10", "2024-01-30"],
+    "amount": [10.0, 20.0, 5.0, 25.0],
+    "event_type": ["click", "purchase", "purchase", "click"],
+})
+
+spec = [
+    WindowAgg(
+        table="events",
+        windows=["7D", "30D"],
+        metrics={
+            "*": ["count"],              # total events
+            "amount": ["sum", "mean"],   # numeric aggregations
+            "event_type": ["nunique"],   # categorical unique counts
+        },
+    )
+]
+
+X = build_features(
     spine=spine,
     tables={"events": events},
-    spec=[
-        WindowAgg(
-            table="events",
-            windows=["7D", "30D"],
-            metrics={
-                "*": ["count"],
-                "amount": ["sum", "mean"],
-            },
-        )
-    ],
+    spec=spec,
     event_time_cols={"events": "event_time"},
-    return_report=True,
+    allowed_lag="0s",  # prevent future leakage
 )
 
-print(report.tables["events"])
+print(X)
+```
+Expected output :
+
+```text
+| entity_id | cutoff_time | events__n_events__7d | events__amount__sum__7d | events__amount__mean__7d | events__event_type__nunique__7d | events__n_events__30d | events__amount__sum__30d | events__amount__mean__30d | events__event_type__nunique__30d |
+| --------- | ----------- | -------------------- | ----------------------- | ------------------------ | ------------------------------- | --------------------- | ------------------------ | ------------------------- | -------------------------------- |
+| u1        | 2024-01-10  | 2                    | 30.0                    | 15.0                     | 2                               | 2                     | 30.0                     | 15.0                      | 2                                |
+| u2        | 2024-01-31  | 1                    | 25.0                    | 25.0                     | 1                               | 2                     | 30.0                     | 15.0                      | 2                                |
 ```
 
 ## Key Concepts
@@ -49,7 +73,8 @@ print(report.tables["events"])
 
 ```bash
 pip install safefeat
-
+```
+```bash
 # With dev tools (pytest, ruff)
 pip install safefeat[dev]
 ```

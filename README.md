@@ -11,9 +11,40 @@ pip install safefeat
 
 ```
 
+## Main Concept:
+safefeat works with three components:
+1️⃣ Spine : Defines when predictions are made.
+
+| entity_id | cutoff_time |
+| --------- | ----------- |
+| u1        | 2024-01-10  |
+
+2️⃣ Events : Historical event log.
+
+| entity_id | event_time | amount |
+| --------- | ---------- | ------ |
+| u1        | 2024-01-05 | 10     |
+
+3️⃣ Feature Specification : Declarative description of what features to compute.
+
+
 ## Example
+
 ```python
+import pandas as pd
 from safefeat import build_features, WindowAgg
+
+spine = pd.DataFrame({
+    "entity_id": ["u1", "u2"],
+    "cutoff_time": ["2024-01-10", "2024-01-31"],
+})
+
+events = pd.DataFrame({
+    "entity_id": ["u1", "u1", "u2", "u2"],
+    "event_time": ["2024-01-05", "2024-01-06", "2024-01-10", "2024-01-30"],
+    "amount": [10.0, 20.0, 5.0, 25.0],
+    "event_type": ["click", "purchase", "purchase", "click"],
+})
 
 spec = [
     WindowAgg(
@@ -40,9 +71,46 @@ print(X)
 Expected output :
 
 ```text
-| entity_id | cutoff_time | events__n_events__7d | events__amount__sum__30d |
-| --------- | ----------- | -------------------- | ------------------------ |
-| u1        | 2024-01-10  | 2                    | 30                       |
-| u2        | 2024-01-10  | 1                    | 5                        |
+| entity_id | cutoff_time | events__n_events__7d | events__amount__sum__7d | events__amount__mean__7d | events__event_type__nunique__7d | events__n_events__30d | events__amount__sum__30d | events__amount__mean__30d | events__event_type__nunique__30d |
+| --------- | ----------- | -------------------- | ----------------------- | ------------------------ | ------------------------------- | --------------------- | ------------------------ | ------------------------- | -------------------------------- |
+| u1        | 2024-01-10  | 2                    | 30.0                    | 15.0                     | 2                               | 2                     | 30.0                     | 15.0                      | 2                                |
+| u2        | 2024-01-31  | 1                    | 25.0                    | 25.0                     | 1                               | 2                     | 30.0                     | 15.0                      | 2                                |
 
 ```
+## ⏱ Recency Features (Time Since Last Event)
+Recency features are extremely useful in churn, fraud, and behavioural modelling.
+Examples:
+- Days since last login
+- Days since last purchase
+- Days since last transaction
+
+```python
+#Basic Recency
+from safefeat import RecencyBlock
+
+spec = [
+    RecencyBlock(table="events")
+]
+
+X = build_features(
+    spine=spine,
+    tables={"events": events},
+    spec=spec,
+    event_time_cols={"events": "event_time"},
+)
+
+print(X)
+```
+This adds 'events__recency' which represents days since the most recent event before the cutoff.
+
+
+## 🧪 Development
+```bash
+pip install -e ".[dev]"
+pytest -q
+ruff check .
+```
+
+## 📚 Documentation
+Full documentation:
+👉 https://alishaang.github.io/safefeat/
