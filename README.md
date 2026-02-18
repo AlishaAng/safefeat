@@ -1,4 +1,7 @@
 # safefeat
+[![PyPI version](https://img.shields.io/pypi/v/safefeat.svg)](https://pypi.org/project/safefeat/)
+[![Documentation](https://img.shields.io/badge/docs-online-blue.svg)](https://alishaang.github.io/safefeat/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Leakage-safe, point-in-time feature engineering for event logs.
 

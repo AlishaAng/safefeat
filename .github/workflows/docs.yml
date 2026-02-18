@@ -2,8 +2,8 @@ name: Docs
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - "v*"
   workflow_dispatch:
 
 permissions:
@@ -12,7 +12,6 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -28,4 +27,3 @@ jobs:
 
       - name: Deploy docs to gh-pages
         run: mkdocs gh-deploy --force
-
