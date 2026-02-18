@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.png" alt="SafeFeat Logo" width="300"/>
+  <img src="docs/assets/logo.png" alt="SafeFeat Logo" width="300"/>
 </p>
 
 [![PyPI version](https://img.shields.io/pypi/v/safefeat.svg)](https://pypi.org/project/safefeat/)
