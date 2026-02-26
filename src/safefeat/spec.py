@@ -14,9 +14,59 @@ class WindowAgg:
         Name of the events table to read (key in the `tables` mapping passed
         to :func:`build_features`).
     windows:
-        List of window lengths expressed in pandas timedelta strings (e.g.
-        ``"30D"``, ``"7D"``). For each window a set of features will be
-        produced.
+        List of window lengths expressed as duration strings (e.g.
+        ``"7D"``, ``"30D"``, ``"3M"``, ``"1Y"``). Supported units:
+
+        - ``D`` – days (e.g. ``"30D"`` = last 30 days)
+        - ``H`` – hours (e.g. ``"24H"`` = last 24 hours)
+        - ``min`` – minutes
+        - ``s`` – seconds
+        - ``M`` – calendar months (e.g. ``"1M"``, ``"3M"``)
+        - ``Y`` – calendar years (e.g. ``"1Y"``, ``"2Y"``)
+
+        For each window a set of features will be produced.
+
+        **How M and Y windows are calculated**
+
+        ``M`` and ``Y`` use calendar-aware arithmetic via ``relativedelta``,
+        meaning they respect actual month lengths rather than assuming a fixed
+        number of days.
+
+        The window is a **sliding lookback** from the cutoff — it does not
+        snap to calendar month or year boundaries.
+
+        Given a cutoff date, the window start is computed as::
+
+            window_start = cutoff - relativedelta(months=n)  # for M
+            window_start = cutoff - relativedelta(years=n)   # for Y
+
+        Events are included if ``window_start < event_time <= cutoff``
+        (window start is **exclusive**, cutoff is **inclusive**).
+
+        Examples:
+
+        - cutoff = ``2024-02-03``, window = ``"1M"``
+          → window_start = ``2024-01-03``
+          → Jan 1 ❌, Jan 3 ❌, Jan 4 ✅, Jan 31 ✅, Feb 3 ✅
+
+        - cutoff = ``2024-03-31``, window = ``"1M"``
+          → window_start = ``2024-02-29`` (leap year aware)
+          → Feb 28 ❌, Feb 29 ✅, Mar 15 ✅
+
+        - cutoff = ``2024-02-03``, window = ``"1Y"``
+          → window_start = ``2023-02-03``
+          → Feb 3 2023 ❌, Feb 4 2023 ✅, Jan 31 2024 ✅
+
+        .. note::
+            ``"1M"`` is not the same as ``"30D"``. A 1-month window from
+            ``2024-02-03`` starts on ``2024-01-03`` (31 days back), while
+            ``"30D"`` starts on ``2024-01-04`` (exactly 30 days back).
+
+        Use ``None`` in the list to compute features over all history prior
+        to the cutoff with no lookback limit (e.g. ``windows=["30D", None]``).
+        The resulting column suffix will be ``all`` (e.g.
+        ``events__n_events__all``).
+
     metrics:
         Mapping from a column name to a list of aggregations to compute. Use
         ``"*"`` as a wildcard key to request event counts (only ``["count"]``
@@ -43,7 +93,7 @@ class WindowAgg:
     spec = [
         WindowAgg(
             table="events",
-            windows=["7D"],
+            windows=["7D", "3M", "1Y"],
             metrics={"amount": ["sum"], "*": ["count"]},
         )
     ]
@@ -55,12 +105,17 @@ class WindowAgg:
         event_time_cols={"events": "event_time"},
     )
 
-    X.filter(like="events__").columns.tolist()
-    # ['events__amount__sum__7d', 'events__n_events__7d']
+    # column names produced:
+    [events__n_events__7d
+    events__amount__sum__7d
+    events__n_events__3m
+    events__amount__sum__3m
+    events__n_events__1y
+    events__amount__sum__1y]
     ```
     """
     table: str
-    windows: List[str]
+    windows: List[Optional[str]]
     metrics: Dict[str, List[str]]
     
     def __post_init__(self):

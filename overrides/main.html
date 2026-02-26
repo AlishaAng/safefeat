@@ -1,282 +1,189 @@
 {% extends "base.html" %}
 
-{% block styles %}
-  {{ super() }}
-{% endblock %}
-
 {% block content %}
 {% if page.file.src_path == "index.md" %}
 
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-
 <div class="sf-wrap">
+  
+  <div class="sf-header">
+    <img src="assets/logo.png" alt="SafeFeat logo" class="sf-logo">
+    <h1 class="sf-title">SafeFeat documentation</h1>
+  </div>
 
-  <!-- HERO -->
-  <div class="sf-hero">
-    <img src="assets/logo.png" alt="safefeat logo" class="sf-logo">
-    <p class="sf-tagline">Leakage-safe, point-in-time feature engineering for event logs.</p>
-    <div class="sf-install">
-      <code>pip install safefeat</code>
+  <p class="sf-desc">
+    <code>safefeat</code> is an open source, MIT-licensed library for leakage-safe,
+    point-in-time feature engineering from event logs. It builds ML features for each
+    <code>(entity_id, cutoff_time)</code> using only events that occurred at or before
+    each cutoff — so your model learns what it would actually know in production.
+  </p>
+
+  <p class="sf-links">
+    <strong>Useful links:</strong>
+    <a href="https://pypi.org/project/safefeat/">PyPI</a> ·
+    <a href="https://github.com/AlishaAng/safefeat">Source Repository</a> ·
+    <a href="https://github.com/AlishaAng/safefeat/issues">Issues &amp; Ideas</a> ·
+  </p>
+
+  <hr class="sf-rule">
+
+  <div class="sf-cards">
+
+    <div class="sf-card">
+      <div class="sf-card-head">
+        <span class="sf-card-icon">🚀</span>
+        <strong>Getting Started</strong>
+      </div>
+      <hr class="sf-card-rule">
+      <p>New to <em>safefeat</em>? The getting started guide walks through installation, core concepts, and your first leakage-safe feature set.</p>
+      <a class="sf-card-link" href="getting-started/">To the getting started guide →</a>
     </div>
-    <div class="sf-links">
-      <a href="getting-started/">Getting Started</a>
-      <span>·</span>
-      <a href="api/">API Reference</a>
-      <span>·</span>
-      <a href="https://pypi.org/project/safefeat/">PyPI</a>
-      <span>·</span>
-      <a href="https://github.com/AlishaAng/safefeat">GitHub</a>
+
+    <div class="sf-card">
+      <div class="sf-card-head">
+        <span class="sf-card-icon">📖</span>
+        <strong>User Guide</strong>
+      </div>
+      <hr class="sf-card-rule">
+      <p>Understand how point-in-time joins work, what the spine pattern is, and how to avoid silent data leakage in ML pipelines.</p>
+      <a class="sf-card-link"href="concepts/">To the user guide →</a>
     </div>
-  </div>
 
-  <hr class="sf-rule">
+    <div class="sf-card">
+      <div class="sf-card-head">
+        <span class="sf-card-icon">⚙️</span>
+        <strong>API Reference</strong>
+      </div>
+      <hr class="sf-card-rule">
+      <p>Detailed description of <code>build_features</code>, <code>WindowAgg</code>, <code>RecencyBlock</code>, and all configuration options.</p>
+      <a class="sf-card-link"href="api/">To the API reference →</a>
+    </div>
 
-  <!-- WHAT IT DOES -->
-  <div class="sf-section">
-    <p class="sf-lead">
-      <code>safefeat</code> builds ML features from event data using only information available
-      <em>at prediction time</em> — so your model learns what it would actually know in production.
-      No future data, no silent leakage.
-    </p>
-  </div>
+    <div class="sf-card">
+      <div class="sf-card-head">
+        <span class="sf-card-icon">🐙</span>
+        <strong>Contributing</strong>
+      </div>
+      <hr class="sf-card-rule">
+      <p>Found a bug or want to improve safefeat? The repository is open — contributions, issues, and feedback are welcome.</p>
+      <a class="sf-card-link"href="https://github.com/AlishaAng/safefeat">To the GitHub repository →</a>
+    </div>
 
-  <hr class="sf-rule">
-
-  <!-- HOW IT WORKS -->
-  <div class="sf-section">
-    <h2>How it works</h2>
-    <p class="sf-body">safefeat works with three components:</p>
-    <table class="sf-table">
-      <thead>
-        <tr><th>Component</th><th>Description</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><code>spine</code></td><td>When to make predictions — one row per <code>(entity_id, cutoff_time)</code></td></tr>
-        <tr><td><code>events</code></td><td>Historical time-series data tied to each entity</td></tr>
-        <tr><td><code>spec</code></td><td>Declarative definition of what features to compute</td></tr>
-      </tbody>
-    </table>
-    <p class="sf-body">
-      For each row in the spine, safefeat joins only events where
-      <code>event_time &lt;= cutoff_time</code>, then computes your features.
-      Future events are physically excluded.
-    </p>
-  </div>
-
-  <hr class="sf-rule">
-
-  <!-- FEATURES -->
-  <div class="sf-section">
-    <h2>Features</h2>
-    <ul class="sf-list">
-      <li><strong>Point-in-time correctness</strong> — events after each cutoff are automatically excluded</li>
-      <li><strong>Window aggregations</strong> — count, sum, mean, nunique over any time window via <code>WindowAgg</code></li>
-      <li><strong>Recency features</strong> — days since last event, optionally filtered, via <code>RecencyBlock</code></li>
-      <li><strong>Audit trail</strong> — inspect exactly how many events were joined, kept, and dropped</li>
-      <li><strong>Pandas-native</strong> — works with standard DataFrames, no new infrastructure needed</li>
-    </ul>
-  </div>
-
-  <hr class="sf-rule">
-
-  <!-- EXAMPLE -->
-  <div class="sf-section">
-    <h2>Example</h2>
-<pre class="sf-pre"><code><span class="sf-kw">import</span> pandas <span class="sf-kw">as</span> pd
-<span class="sf-kw">from</span> safefeat <span class="sf-kw">import</span> build_features, WindowAgg, RecencyBlock
-
-spine = pd.DataFrame({
-    <span class="sf-st">"entity_id"</span>:   [<span class="sf-st">"u1"</span>, <span class="sf-st">"u2"</span>],
-    <span class="sf-st">"cutoff_time"</span>: [<span class="sf-st">"2024-01-10"</span>, <span class="sf-st">"2024-01-31"</span>],
-})
-
-events = pd.DataFrame({
-    <span class="sf-st">"entity_id"</span>:  [<span class="sf-st">"u1"</span>, <span class="sf-st">"u1"</span>, <span class="sf-st">"u2"</span>, <span class="sf-st">"u2"</span>],
-    <span class="sf-st">"event_time"</span>: [<span class="sf-st">"2024-01-05"</span>, <span class="sf-st">"2024-01-06"</span>, <span class="sf-st">"2024-01-10"</span>, <span class="sf-st">"2024-01-30"</span>],
-    <span class="sf-st">"amount"</span>:     [<span class="sf-nm">10.0</span>, <span class="sf-nm">20.0</span>, <span class="sf-nm">5.0</span>, <span class="sf-nm">25.0</span>],
-    <span class="sf-st">"event_type"</span>: [<span class="sf-st">"click"</span>, <span class="sf-st">"purchase"</span>, <span class="sf-st">"purchase"</span>, <span class="sf-st">"click"</span>],
-})
-
-spec = [
-    WindowAgg(
-        table=<span class="sf-st">"events"</span>,
-        windows=[<span class="sf-st">"7D"</span>, <span class="sf-st">"30D"</span>],
-        metrics={
-            <span class="sf-st">"*"</span>:          [<span class="sf-st">"count"</span>],
-            <span class="sf-st">"amount"</span>:     [<span class="sf-st">"sum"</span>, <span class="sf-st">"mean"</span>],
-            <span class="sf-st">"event_type"</span>: [<span class="sf-st">"nunique"</span>],
-        },
-    ),
-    RecencyBlock(table=<span class="sf-st">"events"</span>),
-]
-
-X = build_features(
-    spine=spine,
-    tables={<span class="sf-st">"events"</span>: events},
-    spec=spec,
-    event_time_cols={<span class="sf-st">"events"</span>: <span class="sf-st">"event_time"</span>},
-    allowed_lag=<span class="sf-st">"0s"</span>,
-)</code></pre>
-  </div>
-
-  <hr class="sf-rule">
-
-  <!-- FOOTER LINKS -->
-  <div class="sf-footer-links">
-    <a href="getting-started/">Getting Started</a>
-    <a href="concepts/">Concepts</a>
-    <a href="api/">API Reference</a>
-    <a href="https://github.com/AlishaAng/safefeat">GitHub</a>
-    <a href="https://pypi.org/project/safefeat/">PyPI</a>
   </div>
 
 </div>
 
 <style>
+
+.sf-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
 .sf-logo {
-  display: block;
-  margin: 0 auto 1.25rem;
-  height: 80px;
+  height: 36px;
   width: auto;
+  margin-top: -50px;
 }
 
 .sf-wrap {
-  max-width: 740px;
+  max-width: 860px;
   margin: 0 auto;
-  padding: 3rem 1.5rem 4rem;
-  font-family: 'DM Sans', sans-serif;
-  color: #1e293b;
-}
-
-.sf-hero {
-  text-align: center;
-  padding-bottom: 2rem;
+  padding: 0 0 4rem;
 }
 
 .sf-title {
-  font-family: 'IBM Plex Mono', monospace !important;
-  font-size: 2rem !important;
-  font-weight: 500 !important;
-  color: #0f172a !important;
-  margin-bottom: 0.5rem !important;
-  border: none !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  /* border-bottom: 1px solid var(--md-default-fg-color--lightest) !important; */
+  /* padding-bottom: 0.5rem !important; */
+  /* margin-bottom: 1rem !important; */
 }
 
-.sf-tagline {
-  font-size: 1rem;
-  color: #475569;
-  margin-bottom: 1.5rem;
-}
-
-.sf-install {
-  display: inline-block;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 0.5rem 1.25rem;
-  margin-bottom: 1.25rem;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.9rem;
-  color: #0f172a;
+.sf-desc {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  margin-bottom: 0.75rem;
 }
 
 .sf-links {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
   font-size: 0.875rem;
+  color: var(--md-default-fg-color--light);
+  margin-bottom: 0;
 }
-.sf-links a { color: #2563eb; text-decoration: none; }
+.sf-links a {
+  color: var(--md-accent-fg-color);
+  text-decoration: none;
+}
 .sf-links a:hover { text-decoration: underline; }
-.sf-links span { color: #94a3b8; }
 
 .sf-rule {
   border: none;
-  border-top: 1px solid #e2e8f0;
-  margin: 0;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+  margin: 1.75rem 0;
 }
 
-.sf-section {
-  padding: 2rem 0;
+.sf-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
 }
 
-.sf-section h2 {
-  font-size: 0.75rem !important;
-  font-weight: 600 !important;
-  color: #64748b !important;
-  margin-bottom: 1rem !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.08em !important;
-  border: none !important;
+.sf-card {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 6px;
+  padding: 1.1rem 1.1rem 0.9rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.sf-card:hover {
+  border-color: var(--md-accent-fg-color);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
 }
 
-.sf-lead, .sf-body {
-  font-size: 0.975rem;
-  color: #334155;
-  line-height: 1.8;
-  margin: 0 0 0.75rem;
-}
-
-.sf-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-  margin: 1rem 0;
-}
-.sf-table th {
-  text-align: left;
-  padding: 0.5rem 0.85rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  font-weight: 600;
-  color: #0f172a;
-}
-.sf-table td {
-  padding: 0.5rem 0.85rem;
-  border: 1px solid #e2e8f0;
-  color: #334155;
-  vertical-align: top;
-}
-
-.sf-pre {
-  background: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 6px !important;
-  padding: 1.25rem !important;
-  font-family: 'IBM Plex Mono', monospace !important;
-  font-size: 0.8rem !important;
-  line-height: 1.75 !important;
-  overflow-x: auto;
-  margin: 0 !important;
-}
-.sf-kw { color: #7c3aed; }
-.sf-st { color: #16a34a; }
-.sf-nm { color: #d97706; }
-.sf-cm { color: #94a3b8; font-style: italic; }
-
-.sf-list {
-  padding-left: 1.25rem;
-  font-size: 0.95rem;
-  color: #334155;
-  line-height: 2.1;
-  margin: 0;
-}
-.sf-list li { margin: 0; }
-
-.sf-footer-links {
+.sf-card-head {
   display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  padding-top: 2rem;
-  font-size: 0.875rem;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
 }
-.sf-footer-links a { color: #2563eb; text-decoration: none; }
-.sf-footer-links a:hover { text-decoration: underline; }
 
-/* Hide MkDocs default padding and auto h1 */
+.sf-card-icon { font-size: 1.1rem; }
+
+.sf-card-rule {
+  border: none;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+  margin: 0.6rem 0 0.75rem;
+}
+
+.sf-card p {
+  font-size: 0.84rem;
+  color: var(--md-default-fg-color--light);
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.sf-card a {
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: var(--md-accent-fg-color);
+  text-decoration: none;
+}
+.sf-card a:hover { text-decoration: underline; }
+
+.sf-card {
+  position: relative;
+}
+.sf-card .sf-card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
 .md-content__inner { padding-top: 0 !important; }
-.md-typeset h1:first-child { display: none; }
 </style>
 
 {% else %}

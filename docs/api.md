@@ -2,6 +2,40 @@
 
 This page documents the public API of `safefeat`.
 
+
+## build_features
+
+::: safefeat.core.build_features
+    options:
+      show_source: true
+      show_root_heading: true
+      show_signature: true
+
+
+---
+
+## Feature Specification
+
+### WindowAgg
+
+::: safefeat.spec.WindowAgg
+    options:
+      show_source: true
+      show_root_heading: true
+      show_signature: true
+
+---
+
+### RecencyBlock
+
+::: safefeat.spec.RecencyBlock
+    options:
+      show_source: true
+      show_root_heading: true
+      show_signature: true
+
+---
+
 ## Example
 
 ### 1. Basic window features (count, sum, mean)
@@ -50,39 +84,3 @@ Expected output :
 | u1        | 2024-01-10  | 2                    | 30.0                    | 15.0                     | 2                     | 30.0                     | 15.0                      |
 
 ```
-
-
----
-
-## build_features
-
-::: safefeat.core.build_features
-    options:
-      show_source: true
-      show_root_heading: true
-      show_signature: true
-
-
----
-
-## Feature Specification
-
-### WindowAgg
-
-::: safefeat.spec.WindowAgg
-    options:
-      show_source: true
-      show_root_heading: true
-      show_signature: true
-
----
-
-### RecencyBlock
-
-::: safefeat.spec.RecencyBlock
-    options:
-      show_source: true
-      show_root_heading: true
-      show_signature: true
-
----

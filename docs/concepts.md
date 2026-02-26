@@ -29,16 +29,19 @@ Count or summarize events in a rolling time window *before* the cutoff.
 ```python
 WindowAgg(
     table="events",
-    windows=["7D", "30D"],
+    windows=["7D", "30D", "3M", "1Y", None],
     metrics={"*": ["count"], "amount": ["sum", "mean"]}
 )
 ```
 
-For cutoff 2024-02-15:
-- **7D window**: 2024-02-08 to 2024-02-15
-- **30D window**: 2024-01-16 to 2024-02-15
+For cutoff `2024-02-15`:
 
-Only events falling in these windows before the cutoff are included.
+- **7D window**: events after `2024-02-08` up to `2024-02-15`
+- **30D window**: events after `2024-01-16` up to `2024-02-15`
+- **3M window**: events after `2023-11-15` up to `2024-02-15`
+- **1Y window**: events after `2023-02-15` up to `2024-02-15`
+- **None window**: all events up to `2024-02-15` (no lookback limit)
+
 
 #### Supported Aggregations
 
@@ -46,6 +49,37 @@ Only events falling in these windows before the cutoff are included.
 - `"sum"` — total of a numeric column
 - `"mean"` — average of a numeric column
 - `"nunique"` — count distinct values
+
+#### Window Units
+
+| Unit  | Example | Meaning                              |
+|-------|---------|--------------------------------------|
+| `D`   | `"30D"` | Exact days                           |
+| `H`   | `"24H"` | Exact hours                          |
+| `min` | `"90min"`| Exact minutes                       |
+| `s`   | `"30s"` | Exact seconds                        |
+| `M`   | `"3M"`  | Calendar months (respects month length)|
+| `Y`   | `"1Y"`  | Calendar years (respects leap years) |
+| `None`| `None`  | All history before cutoff            |
+
+**`M` and `Y` use calendar-aware arithmetic**, meaning they respect actual
+month and year lengths rather than assuming fixed days.
+
+The window boundary is computed as:
+```
+window_start = cutoff - duration
+```
+
+Events are included if `window_start < event_time <= cutoff`
+(window start is **exclusive**, cutoff is **inclusive**).
+
+> **`"1M"` is not the same as `"30D"`.**
+> For cutoff `2024-02-03`:
+> - `"1M"` → window_start = `2024-01-03` (31 days back)
+> - `"30D"` → window_start = `2024-01-04` (exactly 30 days back)
+>
+> An event on `2024-01-04` is counted in `"1M"` but **not** in `"30D"`.
+
 
 ### RecencyBlock
 
@@ -104,7 +138,7 @@ High `dropped_future_pairs` may indicate:
 
 Each row in the spine creates an entity-cutoff pair. Events are grouped by:
 - **entity_id** — which user/customer/entity
-- **cutoff_time** — the prediction moment
+- **cutoff_time** — the prediction/cut-off moment
 
 When computing features, we:
 
@@ -117,13 +151,28 @@ Example:
 ```
 Spine row: user_1, 2024-02-15
 
-Join events for user_1:
-  2024-01-10: 10 ← included
-  2024-01-20: 20 ← included
-  2024-02-01: 15 ← included
-  2024-02-20: 5  ← excluded (after cutoff)
+All events for user_1:
+  2024-01-10: 10  ← excluded (before 30D window start 2024-01-16)
+  2024-01-20: 20  ← included
+  2024-02-01: 15  ← included
+  2024-02-20: 5   ← excluded (after cutoff)
 
-30D window (back to 2024-01-16):
-  Count: 3
-  Sum: 45
+30D window (events after 2024-01-16 up to 2024-02-15):
+  Count: 2
+  Sum: 35
 ```
+
+## Output Column Names
+
+Features are named automatically based on the table, metric, aggregation,
+and window:
+
+| Pattern | Example |
+|---|---|
+| `{table}__n_events__{window}` | `events__n_events__30d` |
+| `{table}__{col}__{agg}__{window}` | `events__amount__sum__3m` |
+| `{table}__n_events__all` | `events__n_events__all` |
+| `{table}__recency` | `events__recency` |
+| `{table}__recency__{col}_{val}` | `events__recency__event_type_purchase` |
+
+Window suffixes are lowercased: `"30D"` → `30d`, `"3M"` → `3m`, `"1Y"` → `1y`, `None` → `all`.

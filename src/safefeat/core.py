@@ -1,6 +1,30 @@
 import pandas as pd
 from safefeat.spec import WindowAgg, RecencyBlock, FeatureSpec
 from safefeat.audit import AuditReport, TableAudit
+import re
+from dateutil.relativedelta import relativedelta
+
+def _parse_window(window: str):
+    """Parse window strings like '7D', '3M', '1Y' into a timedelta or relativedelta.
+    
+    D/H/min/s → pd.Timedelta (exact)
+    M/Y       → relativedelta (calendar-aware)
+    """
+    match = re.fullmatch(r"(\d+)(D|H|min|s|M|Y)", window)
+    if not match:
+        raise ValueError(
+            f"Invalid window format: '{window}'. "
+            "Use e.g. '7D', '24H', '3M', '1Y'."
+        )
+    n, unit = int(match.group(1)), match.group(2)
+
+    if unit == "D":   return pd.Timedelta(days=n)
+    if unit == "H":   return pd.Timedelta(hours=n)
+    if unit == "min": return pd.Timedelta(minutes=n)
+    if unit == "s":   return pd.Timedelta(seconds=n)
+    if unit == "M":   return relativedelta(months=n)
+    if unit == "Y":   return relativedelta(years=n)
+
 
 def build_features(spine, tables, spec, *, entity_col="entity_id", cutoff_col="cutoff_time",
                    event_time_cols=None, allowed_lag="0s", return_report=False):
@@ -59,6 +83,7 @@ def build_features(spine, tables, spec, *, entity_col="entity_id", cutoff_col="c
 
             for w in block.windows: # for each window specified in the block
                 # get events in the window using the helper function
+                w_label = "all" if w is None else w.lower()
                 result = _events_in_window(
                     spine=spine_subset,
                     events=events_df,
@@ -91,7 +116,7 @@ def build_features(spine, tables, spec, *, entity_col="entity_id", cutoff_col="c
                                 .size()
                                 .reset_index(name="count")
                             )
-                            feature_name = f"{block.table}__n_events__{w.lower()}"
+                            feature_name = f"{block.table}__n_events__{w_label}"
                             merged = spine_subset.merge(counts, on=[entity_col, cutoff_col], how="left")
                             out[feature_name] = merged["count"].fillna(0).astype(int).values
                     else:
@@ -104,7 +129,7 @@ def build_features(spine, tables, spec, *, entity_col="entity_id", cutoff_col="c
                                 .sum()
                                 .reset_index(name="sum_val")
                             )
-                            feature_name = f"{block.table}__{dim}__sum__{w.lower()}"
+                            feature_name = f"{block.table}__{dim}__sum__{w_label}"
                             merged = spine_subset.merge(sum_agg, on=[entity_col, cutoff_col], how="left")
                             out[feature_name] = merged["sum_val"].fillna(0).values
 
@@ -114,7 +139,7 @@ def build_features(spine, tables, spec, *, entity_col="entity_id", cutoff_col="c
                                 .mean()
                                 .reset_index(name="mean_val")
                             )
-                            feature_name = f"{block.table}__{dim}__mean__{w.lower()}"
+                            feature_name = f"{block.table}__{dim}__mean__{w_label}"
                             merged = spine_subset.merge(mean_agg, on=[entity_col, cutoff_col], how="left")
                             out[feature_name] = merged["mean_val"].fillna(0).values
                         if "nunique" in aggs:
@@ -123,7 +148,7 @@ def build_features(spine, tables, spec, *, entity_col="entity_id", cutoff_col="c
                                 .nunique()
                                 .reset_index(name="nunique_val")
                             )
-                            feature_name = f"{block.table}__{dim}__nunique__{w.lower()}"
+                            feature_name = f"{block.table}__{dim}__nunique__{w_label}"
                             merged = spine_subset.merge(nunique_agg, on=[entity_col, cutoff_col], how="left")
                             out[feature_name] = merged["nunique_val"].fillna(0).astype(int).values
             
@@ -290,8 +315,13 @@ def _events_in_window(
         filtered = result
         audit_dict = None
 
-    window_start = filtered[cutoff_col] - pd.to_timedelta(time_window)
-    mask = (filtered[event_time_col] > window_start) & (filtered[event_time_col] <= filtered[cutoff_col])
+    if time_window is None:
+        # no lookback limit — all events up to and including cutoff
+        mask = filtered[event_time_col] <= filtered[cutoff_col]
+    else:
+        delta = _parse_window(time_window)
+        window_start = filtered[cutoff_col].apply(lambda t: t - delta)
+        mask = (filtered[event_time_col] > window_start) & (filtered[event_time_col] <= filtered[cutoff_col])
     in_window = filtered.loc[mask]
 
     if collect_audit:

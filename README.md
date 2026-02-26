@@ -151,6 +151,17 @@ print(events_audit.dropped_future_pairs)  # events after cutoff (excluded)
 
 ---
 
+## Demo Dataset
+
+safefeat ships with a synthetic e-commerce dataset for experimentation:
+
+```python
+from safefeat.datasets import load_customer_demo
+events, spine = load_customer_demo()
+```
+
+---
+
 ## Development
 
 ```bash
