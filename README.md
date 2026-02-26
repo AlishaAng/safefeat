@@ -89,15 +89,15 @@ X = build_features(
 
 Output columns follow the pattern `{table}__{column}__{agg}__{window}`:
 ```
-events__n_events__7d
-events__amount__sum__7d
-events__amount__mean__7d
-events__event_type__nunique__7d
+events__n_events__7d               # number of events in the last 7 days
+events__amount__sum__7d            # total spend in the last 7 days
+events__amount__mean__7d           # average spend per event in the last 7 days
+events__event_type__nunique__7d    # distinct event types seen in the last 7 days
 
-events__n_events__30d
-events__amount__sum__30d
-events__amount__mean__30d
-events__event_type__nunique__30d
+events__n_events__30d              # number of events in the last 30 days
+events__amount__sum__30d           # total spend in the last 30 days
+events__amount__mean__30d          # average spend per event in the last 30 days
+events__event_type__nunique__30d   # distinct event types seen in the last 30 days
 ```
 ---
 
