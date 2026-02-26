@@ -2,18 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://alishaang.github.io/safefeat/</loc>
-         <lastmod>2026-02-18</lastmod>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
          <loc>https://alishaang.github.io/safefeat/api/</loc>
-         <lastmod>2026-02-18</lastmod>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
          <loc>https://alishaang.github.io/safefeat/concepts/</loc>
-         <lastmod>2026-02-18</lastmod>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
+         <loc>https://alishaang.github.io/safefeat/demo_dataset/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
     <url>
          <loc>https://alishaang.github.io/safefeat/getting-started/</loc>
-         <lastmod>2026-02-18</lastmod>
+         <lastmod>2026-02-26</lastmod>
+    </url>
+    <url>
+         <loc>https://alishaang.github.io/safefeat/demo_datasets/customer_demo_questions/</loc>
+         <lastmod>2026-02-26</lastmod>
     </url>
 </urlset>

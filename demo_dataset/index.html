@@ -12,13 +12,13 @@
         <meta name="author" content="Alisha Angdembe">
       
       
-        <link rel="canonical" href="https://alishaang.github.io/safefeat/getting-started/">
+        <link rel="canonical" href="https://alishaang.github.io/safefeat/demo_dataset/">
       
       
-        <link rel="prev" href="..">
+        <link rel="prev" href="../getting-started/">
       
       
-        <link rel="next" href="../demo_dataset/">
+        <link rel="next" href="../concepts/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Getting Started - SafeFeat</title>
+        <title>Demo dataset - SafeFeat</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#getting-started" class="md-skip">
+        <a href="#demo-dataset-synthetic-e-commerce-customers" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Getting Started
+              Demo dataset
             
           </span>
         </div>
@@ -203,11 +203,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../getting-started/" class="md-tabs__link">
         
   
   
@@ -224,9 +222,11 @@
   
   
   
+    
   
-    <li class="md-tabs__item">
-      <a href="../demo_dataset/" class="md-tabs__link">
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
         
   
   
@@ -367,6 +367,33 @@
       
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -386,7 +413,7 @@
   <span class="md-ellipsis">
     
   
-    Getting Started
+    Demo dataset
   
 
     
@@ -404,7 +431,7 @@
   <span class="md-ellipsis">
     
   
-    Getting Started
+    Demo dataset
   
 
     
@@ -430,10 +457,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Installation
+        Overview
       
     </span>
   </a>
@@ -441,10 +468,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#1-prepare-the-spine-and-events" class="md-nav__link">
+  <a href="#loading-the-dataset" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Prepare the spine and events
+        Loading the dataset
       
     </span>
   </a>
@@ -452,33 +479,50 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-define-the-feature-specification" class="md-nav__link">
+  <a href="#dataset-structure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Define the Feature Specification
+        Dataset structure
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-build-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Build features
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. Build features">
+    <nav class="md-nav" aria-label="Dataset structure">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#how-leakage-prevention-works" class="md-nav__link">
+  <a href="#customer_eventscsv" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How Leakage Prevention Works
+        customer_events.csv
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="customer_events.csv">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key columns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customer_spinecsv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        customer_spine.csv
       
     </span>
   </a>
@@ -491,10 +535,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-inspect-the-auditreport" class="md-nav__link">
+  <a href="#label-definition" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Inspect the AuditReport
+        Label definition
       
     </span>
   </a>
@@ -502,41 +546,35 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#advanced-recency-features" class="md-nav__link">
+  <a href="#multiple-cutoffs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Advanced: Recency Features
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Advanced: Recency Features">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#days-since-last-event-unfiltered" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Days since last event (unfiltered)
+        Multiple cutoffs
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#days-since-last-event-of-a-specific-type-filtered" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#point-in-time-safety" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Days since last event of a specific type (filtered)
+        Point-in-time safety
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#example-computing-features-point-in-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: computing features point-in-time
+      
+    </span>
+  </a>
   
 </li>
       
@@ -544,33 +582,6 @@
   
 </nav>
       
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../demo_dataset/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Demo dataset
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -803,10 +814,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Installation
+        Overview
       
     </span>
   </a>
@@ -814,10 +825,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#1-prepare-the-spine-and-events" class="md-nav__link">
+  <a href="#loading-the-dataset" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Prepare the spine and events
+        Loading the dataset
       
     </span>
   </a>
@@ -825,33 +836,50 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-define-the-feature-specification" class="md-nav__link">
+  <a href="#dataset-structure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Define the Feature Specification
+        Dataset structure
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-build-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Build features
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. Build features">
+    <nav class="md-nav" aria-label="Dataset structure">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#how-leakage-prevention-works" class="md-nav__link">
+  <a href="#customer_eventscsv" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How Leakage Prevention Works
+        customer_events.csv
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="customer_events.csv">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key columns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customer_spinecsv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        customer_spine.csv
       
     </span>
   </a>
@@ -864,10 +892,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-inspect-the-auditreport" class="md-nav__link">
+  <a href="#label-definition" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Inspect the AuditReport
+        Label definition
       
     </span>
   </a>
@@ -875,41 +903,35 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#advanced-recency-features" class="md-nav__link">
+  <a href="#multiple-cutoffs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Advanced: Recency Features
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Advanced: Recency Features">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#days-since-last-event-unfiltered" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Days since last event (unfiltered)
+        Multiple cutoffs
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#days-since-last-event-of-a-specific-type-filtered" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#point-in-time-safety" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Days since last event of a specific type (filtered)
+        Point-in-time safety
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#example-computing-features-point-in-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: computing features point-in-time
+      
+    </span>
+  </a>
   
 </li>
       
@@ -932,120 +954,90 @@
 
 
 
-<h1 id="getting-started">Getting Started</h1>
-<h2 id="installation">Installation</h2>
-<p>Install from PyPI:</p>
-<pre><code class="language-bash">pip install safefeat
-</code></pre>
-<p>Install (editable, with dev tools):</p>
-<pre><code class="language-bash">pip install -e &quot;.[dev]&quot;
-</code></pre>
-<h2 id="1-prepare-the-spine-and-events">1. Prepare the spine and events</h2>
-<hr />
-<p>The spine defines the prediction scenarios as rows of (entity_id, cutoff_time).
-Events contain historical records tied to entities.</p>
-<pre><code class="language-python">import pandas as pd
+<h1 id="demo-dataset-synthetic-e-commerce-customers">Demo Dataset (Synthetic E-commerce Customers)</h1>
+<h2 id="overview">Overview</h2>
+<p><code>safefeat</code> ships with a small synthetic dataset that mimics real e-commerce customer behaviour:
+sessions, browsing funnels, purchases, refunds, and support tickets.</p>
+<p>This dataset is fully synthetic and contains no real customer information.</p>
+<h2 id="loading-the-dataset">Loading the dataset</h2>
+<pre><code class="language-python">from safefeat.datasets import load_customer_demo
 
-spine = pd.DataFrame({
-    &quot;entity_id&quot;: [&quot;u1&quot;, &quot;u2&quot;],
-    &quot;cutoff_time&quot;: [&quot;2024-01-10&quot;, &quot;2024-01-31&quot;],
-})
-
-events = pd.DataFrame({
-    &quot;entity_id&quot;: [&quot;u1&quot;, &quot;u1&quot;, &quot;u2&quot;, &quot;u2&quot;],
-    &quot;event_time&quot;: [&quot;2024-01-05&quot;, &quot;2024-01-06&quot;, &quot;2024-01-10&quot;, &quot;2024-01-30&quot;],
-    &quot;amount&quot;: [10.0, 20.0, 5.0, 25.0],
-    &quot;event_type&quot;: [&quot;click&quot;, &quot;purchase&quot;, &quot;purchase&quot;, &quot;click&quot;],
-})
+events, spine = load_customer_demo()
 </code></pre>
-<h2 id="2-define-the-feature-specification">2. Define the Feature Specification</h2>
-<hr />
-<p>You declare features using WindowAgg.</p>
-<pre><code class="language-python">from safefeat import WindowAgg
+<h2 id="dataset-structure">Dataset structure</h2>
+<h3 id="customer_eventscsv">customer_events.csv</h3>
+<p>An event log of customer activity.</p>
+<p>Example row:</p>
+<pre><code class="language-python">entity_id   event_time          session_id  event_type amount  channel  device  product_category payment_method
+cust_00001  2023-02-22 01:07:37 s_0000022   visit       0.0    organic   web       books              NaN
+</code></pre>
+<h4 id="key-columns">Key columns</h4>
+<ul>
+<li>entity_id: Customer identifier.</li>
+<li>event_time: Timestamp of the event.</li>
+<li>session_id: Session identifier.</li>
+<li>event_type: One of: visit, view, add_to_cart, purchase, refund, support_ticket.</li>
+<li>amount: Net transaction amount. Positive for purchases, negative for refunds, 0.0 otherwise.</li>
+<li>channel: Acquisition or interaction channel. May be missing.</li>
+<li>device: web, ios, android</li>
+<li>product_category: Product category associated with the event. May be missing.</li>
+<li>payment_method: Present only for purchase events</li>
+</ul>
+<h3 id="customer_spinecsv">customer_spine.csv</h3>
+<p>The modelling spine defines what is predicted and when.</p>
+<pre><code class="language-python">entity_id   cutoff_time  churned
+cust_00001  2024-01-01   0
+</code></pre>
+<p>Columns</p>
+<ul>
+<li>entity_id: Customer identifier.</li>
+<li>cutoff_time: The prediction time. Features must be computed using only data at or before this timestamp.</li>
+<li>churned: Binary label. See definition below.</li>
+</ul>
+<h2 id="label-definition">Label definition</h2>
+<p>At a given cutoff_time, a customer is labelled as churned if they have been inactive
+(no events) for more than 90 days prior to the cutoff.</p>
+<p>This label is computed using only events with event_time &lt;= cutoff_time.</p>
+<h2 id="multiple-cutoffs">Multiple cutoffs</h2>
+<p>The spine may contain multiple rows per customer, e.g. monthly cutoffs. Each row is a
+separate “snapshot”:</p>
+<p>“As of this date, using only historical data, what features can we compute and what is the churn label?”</p>
+<p>This matches real production usage where customers are scored repeatedly (weekly/monthly).</p>
+<h2 id="point-in-time-safety">Point-in-time safety</h2>
+<p>The event log includes activity after some cutoff times.</p>
+<p>When computing features with:</p>
+<pre><code class="language-python">allowed_lag=&quot;0s&quot;
+</code></pre>
+<p><code>safefeat</code> ensures that only events at or before each <code>cutoff_time</code>
+contribute to feature values.</p>
+<h2 id="example-computing-features-point-in-time">Example: computing features point-in-time</h2>
+<pre><code class="language-python">from safefeat.datasets import load_customer_demo
+from safefeat import build_features, WindowAgg, RecencyBlock
+
+events, spine = load_customer_demo()
 
 spec = [
     WindowAgg(
         table=&quot;events&quot;,
-        windows=[&quot;7D&quot;, &quot;30D&quot;],
+        windows=[&quot;7D&quot;, &quot;30D&quot;, &quot;90D&quot;],
         metrics={
-            &quot;*&quot;: [&quot;count&quot;],              # total events
-            &quot;amount&quot;: [&quot;sum&quot;, &quot;mean&quot;],   # numeric aggregations
-            &quot;event_type&quot;: [&quot;nunique&quot;],   # categorical unique counts
+            &quot;*&quot;: [&quot;count&quot;],
+            &quot;amount&quot;: [&quot;sum&quot;, &quot;mean&quot;],
         },
-    )
-]
-</code></pre>
-<h2 id="3-build-features">3. Build features</h2>
-<hr />
-<pre><code class="language-python">from safefeat import build_features
-
-X = build_features(
-    spine=spine,
-    tables={&quot;events&quot;: events},
-    spec=spec,
-    event_time_cols={&quot;events&quot;: &quot;event_time&quot;},
-    allowed_lag=&quot;0s&quot;,  # prevent future leakage
-)
-
-print(X)
-</code></pre>
-<p>Expected output (approximate):</p>
-<pre><code class="language-text">| entity_id | cutoff_time | events__n_events__7d | events__amount__sum__7d | events__amount__mean__7d | events__event_type__nunique__7d | events__n_events__30d | events__amount__sum__30d | events__amount__mean__30d | events__event_type__nunique__30d |
-|-----------|------------|----------------------|--------------------------|---------------------------|----------------------------------|-----------------------|---------------------------|----------------------------|-----------------------------------|
-| u1        | 2024-01-10 | 2                    | 30.0                     | 15.0                      | 2                                | 2                     | 30.0                      | 15.0                       | 2                                 |
-| u2        | 2024-01-31 | 1                    | 25.0                     | 25.0                      | 1                                | 2                     | 30.0                      | 15.0                       | 2                                 |
-</code></pre>
-<h3 id="how-leakage-prevention-works">How Leakage Prevention Works</h3>
-<p>safefeat enforces:</p>
-<pre><code class="language-text">event_time &lt;= cutoff_time
-</code></pre>
-<p>This guarantees that no future events are used when building features.</p>
-<p>If allowed_lag is set (e.g. "5s"), a small tolerance is allowed to handle timestamp precision issues.</p>
-<h2 id="4-inspect-the-auditreport">4. Inspect the AuditReport</h2>
-<hr />
-<p>If <code>return_report=True</code>, <code>build_features</code> returns an <code>AuditReport</code> mapping
-table names to <code>TableAudit</code> objects. The audit shows how many event–cutoff
-pairs were joined, how many were kept, how many were dropped for being in the
-future, and the largest future delta observed.</p>
-<pre><code class="language-python">events_audit = report.tables.get(&quot;events&quot;)
-print(&quot;total joined&quot;, events_audit.total_joined_pairs)
-print(&quot;kept&quot;, events_audit.kept_pairs)
-print(&quot;dropped (future)&quot;, events_audit.dropped_future_pairs)
-print(&quot;max future delta&quot;, events_audit.max_future_delta)
-</code></pre>
-<h2 id="advanced-recency-features">Advanced: Recency Features</h2>
-<p>Recency features represent the time since the most recent event before each cutoff.</p>
-<p>Common examples:
-- days since last login
-- days since last purchase
-- hours since last sensor reading</p>
-<h3 id="days-since-last-event-unfiltered">Days since last event (unfiltered)</h3>
-<pre><code class="language-python">from safefeat import build_features, RecencyBlock
-
-spec = [
-    RecencyBlock(table=&quot;events&quot;)
+    ),
+    RecencyBlock(table=&quot;events&quot;),
 ]
 
 X = build_features(
-    spine=spine,
+    spine=spine[[&quot;entity_id&quot;, &quot;cutoff_time&quot;]],
     tables={&quot;events&quot;: events},
     spec=spec,
     event_time_cols={&quot;events&quot;: &quot;event_time&quot;},
+    allowed_lag=&quot;0s&quot;,
 )
+
+X.head()
 </code></pre>
-<p>This adds a column:
- - events__recency</p>
-<h3 id="days-since-last-event-of-a-specific-type-filtered">Days since last event of a specific type (filtered)</h3>
-<pre><code class="language-python">spec = [
-    RecencyBlock(
-        table=&quot;events&quot;,
-        filter_col=&quot;event_type&quot;,
-        filter_value=&quot;purchase&quot;,
-    )
-]
-</code></pre>
-<p>This adds a column:
-- events__recency__event_type_purchase</p>
 
 
 
