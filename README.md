@@ -50,9 +50,6 @@ For each row in the spine, safefeat joins only events where `event_time <= cutof
 ---
 
 ## Quick Start
-
-### Window aggregations
-
 ```python
 import pandas as pd
 from safefeat import build_features, WindowAgg
@@ -74,9 +71,9 @@ spec = [
         table="events",
         windows=["7D", "30D"],
         metrics={
-            "*":          ["count"],        # total events
-            "amount":     ["sum", "mean"],  # numeric aggregations
-            "event_type": ["nunique"],      # distinct event types
+            "*":          ["count"],
+            "amount":     ["sum", "mean"],
+            "event_type": ["nunique"],
         },
     )
 ]
@@ -91,18 +88,56 @@ X = build_features(
 ```
 
 Output columns follow the pattern `{table}__{column}__{agg}__{window}`:
-
 ```
 events__n_events__7d
 events__amount__sum__7d
+events__amount__mean__7d
+events__event_type__nunique__7d
+
+events__n_events__30d
+events__amount__sum__30d
 events__amount__mean__30d
 events__event_type__nunique__30d
 ```
+## Demo Dataset
+
+safefeat ships with a synthetic e-commerce dataset for experimentation:
+```python
+from safefeat.datasets import load_customer_demo
+
+events, spine = load_customer_demo()
+```
+
+See the
+[customer demo examples](https://alishaang.github.io/safefeat/demo_datasets/customer_demo_questions/)
+for worked questions using this dataset.
+
+### Window aggregations
+
+Windows support days, months, years, and unlimited history:
+```python
+spec = [
+    WindowAgg(
+        table="events",
+        windows=["7D", "30D", "3M", "1Y", None],  # None = all history before cutoff
+        metrics={
+            "*":          ["count"],
+            "amount":     ["sum", "mean"],
+            "event_type": ["nunique"],
+        },
+    )
+]
+```
+
+| Unit | Example | Meaning |
+|------|---------|---------|
+| `D`  | `"30D"` | Exact days |
+| `M`  | `"3M"`  | Calendar months |
+| `Y`  | `"1Y"`  | Calendar years |
+| `None` | `None` | All history before cutoff |
+
 
 ### Recency features
-
-Time since the most recent event before each cutoff — useful for churn, fraud, and behavioural modelling:
-
 ```python
 from safefeat import RecencyBlock
 
@@ -117,8 +152,7 @@ X = build_features(
 # Adds: events__recency (days since last event before cutoff_time)
 ```
 
-Filter by event type:
-
+Filter to a specific event type:
 ```python
 spec = [
     RecencyBlock(
@@ -149,16 +183,30 @@ print(events_audit.kept_pairs)            # events before cutoff (used)
 print(events_audit.dropped_future_pairs)  # events after cutoff (excluded)
 ```
 
----
+### Multiple event tables
 
-## Demo Dataset
-
-safefeat ships with a synthetic e-commerce dataset for experimentation:
-
+Pass multiple tables — each with its own event time column:
 ```python
-from safefeat.datasets import load_customer_demo
-events, spine = load_customer_demo()
+spec = [
+    WindowAgg(table="transactions", windows=["30D"], metrics={"amount": ["sum"]}),
+    WindowAgg(table="logins",       windows=["7D"],  metrics={"*": ["count"]}),
+    RecencyBlock(table="transactions"),
+]
+
+X = build_features(
+    spine=spine,
+    tables={
+        "transactions": transactions_df,
+        "logins":        logins_df,
+    },
+    event_time_cols={
+        "transactions": "transaction_time",
+        "logins":       "login_time",
+    },
+)
 ```
+
+The `table=` name is just a label — it must match a key in `tables` and `event_time_cols`, but can be anything you choose.
 
 ---
 
@@ -172,7 +220,7 @@ ruff check .
 
 ---
 
-## Documentation
+## Contributing
 
-Full documentation, concepts, and API reference:
-👉 **https://alishaang.github.io/safefeat/**
+Contributions, bug reports, and feature requests are welcome.
+Open an issue at [github.com/AlishaAng/safefeat/issues](https://github.com/AlishaAng/safefeat/issues).

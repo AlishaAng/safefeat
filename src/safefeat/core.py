@@ -17,13 +17,19 @@ def _parse_window(window: str):
             "Use e.g. '7D', '24H', '3M', '1Y'."
         )
     n, unit = int(match.group(1)), match.group(2)
-
-    if unit == "D":   return pd.Timedelta(days=n)
-    if unit == "H":   return pd.Timedelta(hours=n)
-    if unit == "min": return pd.Timedelta(minutes=n)
-    if unit == "s":   return pd.Timedelta(seconds=n)
-    if unit == "M":   return relativedelta(months=n)
-    if unit == "Y":   return relativedelta(years=n)
+    
+    if unit == "D":
+        return pd.Timedelta(days=n)
+    if unit == "H":
+        return pd.Timedelta(hours=n)
+    if unit == "min":
+        return pd.Timedelta(minutes=n)
+    if unit == "s":
+        return pd.Timedelta(seconds=n)
+    if unit == "M":
+        return relativedelta(months=n)
+    if unit == "Y":
+        return relativedelta(years=n)
 
 
 def build_features(spine, tables, spec, *, entity_col="entity_id", cutoff_col="cutoff_time",
