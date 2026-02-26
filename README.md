@@ -99,6 +99,8 @@ events__amount__sum__30d
 events__amount__mean__30d
 events__event_type__nunique__30d
 ```
+---
+
 ## Demo Dataset
 
 safefeat ships with a synthetic e-commerce dataset for experimentation:
@@ -183,7 +185,7 @@ print(events_audit.kept_pairs)            # events before cutoff (used)
 print(events_audit.dropped_future_pairs)  # events after cutoff (excluded)
 ```
 
-### Multiple event tables
+## Multiple event tables
 
 Pass multiple tables — each with its own event time column:
 ```python
